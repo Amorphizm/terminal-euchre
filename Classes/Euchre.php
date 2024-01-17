@@ -14,14 +14,19 @@ class Euchre
     public function __construct()
     {
         $this->getPointsToWin();
-        // get stick the dealer
+        $this->getStickTheDealerValue();
         // create players
         
     }
 
+    /**
+     * Lets the user choose how many points they would like required to win the game.
+     * 
+     * @return void
+     */
     private function getPointsToWin(): void
     {
-        $pointsToWinMsg = "Please enter the amount of points needed to win the game! Can be chosen between";
+        $pointsToWinMsg = "Please enter the amount of points needed to win the game! Can choose between";
         foreach ($this->pointsToWinChoices as $key => $value) {
             if ($key === count($this->pointsToWinChoices) - 1) {
                 $pointsToWinMsg .= " and $value.\n";
@@ -40,6 +45,30 @@ class Euchre
                 echo "Ooops! Looks like that input is not valid. Try again!\n";
             } else {
                 $this->pointsToWin = intval($input);
+                $validInput = true;
+            }
+        }
+    }
+
+    /**
+     * Lets the user choose if they would like to stick the dealer or not.
+     * 
+     * @return void
+     */
+    private function getStickTheDealerValue(): void
+    {
+        $validInputs = ['y', 'Y', 'n', 'N'];
+        $stickTheDealerMsg = "Stick the dealer, or nah?\n";
+
+        $validInput = false;
+        while (!$validInput) {
+            echo $stickTheDealerMsg;
+
+            $input = readLine("Enter y or n: ");
+            if (!in_array($input, $validInputs)) {
+                echo "Ooops! Looks like that input is not valid. Try again!\n";
+            } else {
+                $this->stickTheDealer = strtolower($input) === 'y'; 
                 $validInput = true;
             }
         }
