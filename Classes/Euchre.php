@@ -13,11 +13,20 @@ class Euchre
 
     public function __construct()
     {
+        // Game setup
         $this->getPointsToWin();
         $this->getStickTheDealerValue();
         // create players
+
+        // Start game
         
     }
+
+    // START GAME LOGIC
+
+    // END GAME LOGIC
+
+    // START SETUP LOGIC
 
     /**
      * Lets the user choose how many points they would like required to win the game.
@@ -73,6 +82,8 @@ class Euchre
             }
         }
     }
+
+    // END SETUP LOGIC
 }
 
 ?>
