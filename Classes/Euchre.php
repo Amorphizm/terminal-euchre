@@ -1,13 +1,12 @@
 <?php
 
+require_once("Player.php");
+
 class Euchre
 {
-    public array $players;
     public int $pointsToWin;
+    public array $teams = [];
     public bool $stickTheDealer;
-
-    // Default to 4. Maybe this can be expanded upon to make a euchre game that takes more than 4 players max?
-    private int $numPlayers = 4;
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -16,7 +15,7 @@ class Euchre
         // Game setup
         $this->getPointsToWin();
         $this->getStickTheDealerValue();
-        $this->createPlayers();
+        $this->createTeams();
 
         // Start game
         
@@ -65,12 +64,11 @@ class Euchre
      */
     private function getStickTheDealerValue(): void
     {
-        $validInputs = ['y', 'Y', 'n', 'N'];
-        $stickTheDealerMsg = "Stick the dealer, or nah?\n";
-
         $validInput = false;
+        $validInputs = ['y', 'Y', 'n', 'N'];
+
         while (!$validInput) {
-            echo $stickTheDealerMsg;
+            echo "Stick the dealer, or nah?\n";
 
             $input = readLine("Enter y or n: ");
             if (!in_array($input, $validInputs)) {
@@ -87,9 +85,36 @@ class Euchre
      * 
      * @return void
      */
-    private function createPlayers(): void
+    private function createTeams(): void
     {
+        $maxCharsForName = 15;
+        while (($teamNum = count($this->teams) + 1) <= 2) {
+            $team = [ // Should this be its own class?
+                'points' => 0,
+                'players' => [],
+            ];
+            echo "Setup for team $teamNum.\n";
 
+            // Two players per team.
+            for ($i = 0; $i < 2; $i++) {
+                $validInput = false;
+                $firstOrSecond = $i == 0 ? 'first' : 'second';
+
+                while (!$validInput) {
+                    $input = readLine("Enter a username for team $teamNum's $firstOrSecond player: ");
+                    if (strlen($input) > $maxCharsForName) {
+                        echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
+                    } else {
+                        array_push($team['players'], new Player($input));
+                        $validInput = true;
+                    }
+                }
+            }
+
+            array_push($this->teams, $team);
+        }
+
+        echo json_encode($this->teams);
     }
     #endregion
 }
