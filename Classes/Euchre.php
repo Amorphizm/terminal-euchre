@@ -16,18 +16,17 @@ class Euchre
         // Game setup
         $this->getPointsToWin();
         $this->getStickTheDealerValue();
-        // create players
+        $this->createPlayers();
 
         // Start game
         
     }
 
-    // START GAME LOGIC
+    #region game logic
+    
+    #engregion
 
-    // END GAME LOGIC
-
-    // START SETUP LOGIC
-
+    #region setup logic
     /**
      * Lets the user choose how many points they would like required to win the game.
      * 
@@ -83,7 +82,16 @@ class Euchre
         }
     }
 
-    // END SETUP LOGIC
+    /**
+     * Create the players.
+     * 
+     * @return void
+     */
+    private function createPlayers(): void
+    {
+
+    }
+    #endregion
 }
 
 ?>
