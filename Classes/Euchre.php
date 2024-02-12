@@ -113,8 +113,6 @@ class Euchre
 
             array_push($this->teams, $team);
         }
-
-        echo json_encode($this->teams);
     }
     #endregion
 }
