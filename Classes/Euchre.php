@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__ . '/Player/Player.php');
+require_once(__DIR__ . '/Player/Human.php');
 
 class Euchre
 {
@@ -117,7 +117,7 @@ class Euchre
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        array_push($team['players'], new Player($input));
+                        array_push($team['players'], new Human($input)); // Humans for now, implement Bots later though.
                         $validInput = true;
                     }
                 }
