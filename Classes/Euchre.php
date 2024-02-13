@@ -7,6 +7,7 @@ class Euchre
     public int $pointsToWin;
     public array $teams = [];
     public bool $stickTheDealer;
+    public bool $gameOver = false;
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -18,11 +19,22 @@ class Euchre
         $this->createTeams();
 
         // Start game
-        
+        while (!$this->gameOver) {
+            // deal cards
+            // go around and see who wants to call it
+                // stick the dealer or no? Handle it.
+            // trick begin, loop over players for turns.
+            // trick over, apply points to winning team for this trick.
+            // game won check, set gameOver to true if so.
+        }
+
+        // Game over
+        // Display message, fun stats about the game?
+        // Play again?
     }
 
     #region game logic
-    
+
     #engregion
 
     #region setup logic
