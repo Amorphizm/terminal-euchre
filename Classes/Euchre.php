@@ -1,6 +1,6 @@
 <?php
 
-require_once("Player.php");
+require_once(__DIR__ . '/Player/Player.php');
 
 class Euchre
 {

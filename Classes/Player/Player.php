@@ -9,7 +9,6 @@ class Player
     {
         $this->name = $name;
     }
-
 }
 
 ?>
