@@ -7,8 +7,6 @@ class Deck
     public array $cards = [];
     private array $suits = ['diamond', 'spade', 'heart', 'club'];
     private array $faces = [
-        '7' => 1,
-        '8' => 2,
         '9' => 3,
         '10' => 4,
         'J' => 5,
@@ -20,6 +18,7 @@ class Deck
     public function __construct()
     {
         $this->initDeck();
+        $this->shuffle();
     }
 
     /**
