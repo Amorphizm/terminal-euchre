@@ -7,12 +7,12 @@ class Deck
     public array $cards = [];
     private array $suits = ['diamond', 'spade', 'heart', 'club'];
     private array $faces = [
-        '9' => 3,
-        '10' => 4,
-        'J' => 5,
-        'Q' => 6,
-        'K' => 7,
-        'A' => 8,
+        '9' => 1,
+        '10' => 2,
+        'J' => 3,
+        'Q' => 4,
+        'K' => 5,
+        'A' => 6,
     ];
 
     public function __construct()
