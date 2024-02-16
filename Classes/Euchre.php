@@ -10,7 +10,7 @@ class Euchre
     public array $teams = [];
     public bool $stickTheDealer;
     public bool $gameOver = false;
-    public array $dealerPosition = []; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
+    public array $dealerPosition = [0, 0]; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -53,9 +53,9 @@ class Euchre
         $player = $this->teams[$this->dealerPosition[0]]['players'][$this->dealerPosition[1]];
         echo "$player->name from team $team is dealing the cards!\n";
 
-        // Player iteration for dealing cards.
+        // Player iteration for dealing cards. Deal cards to dealer last.
         $deltCount = 0;
-        $positionToDealTo = $this->dealerPosition;
+        $positionToDealTo = $this->getNextPlayerPosition($this->dealerPosition);
         while ($deltCount != 4) {
             // Move cards from deck to player's hand.
             $player = $this->teams[$positionToDealTo[0]]['players'][$positionToDealTo[1]];
