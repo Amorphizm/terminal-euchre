@@ -10,7 +10,7 @@ class Euchre
     public array $teams = [];
     public bool $stickTheDealer;
     public bool $gameOver = false;
-    public array $dealerPosition = [0, 0]; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
+    public array $dealerPosition = []; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
