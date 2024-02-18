@@ -34,7 +34,7 @@ class Euchre
             $this->dealCards();
             // go around and see who wants to call it
                 // stick the dealer or no? Handle it.
-            // $this->determineTrump();
+            $this->determineTrump();
             // trick begin, loop over players for turns.
             // trick over, apply points to winning team for this trick.
             // game won check, set gameOver to true if so.
@@ -58,8 +58,14 @@ class Euchre
         echo "Flipped a $flippedCard->type of $flippedCard->suit's!\n";
 
         // Iterate over players and see who wants to order up the flipped card.
+        $player = null;
         for ($i = 0; $i < 4; $i++) {
-
+            $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
+            
+            $isDealer = $i == 3;
+            if ($player->orderUpCardCheck($flippedCard, $this->dealer->name, $isDealer)) {
+                // $this->dealer->processOrderUp
+            }
         }
 
         // Card wasn't ordered up? Iterate over the players again and see if anyone wants to call it.
