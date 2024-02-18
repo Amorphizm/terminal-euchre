@@ -20,6 +20,7 @@ class Euchre
         $this->getPointsToWin();
         $this->getStickTheDealerValue();
         $this->createTeams();
+        $this->clearScreen();
 
         // Start game
         // while (!$this->gameOver) {
@@ -173,6 +174,18 @@ class Euchre
 
             array_push($this->teams, $team);
         }
+    }
+    #endregion
+
+    #region helper functions
+    /**
+     * Clears the terminal of text.
+     * 
+     * @return void
+     */
+    private function clearScreen(): void
+    {
+        echo chr(27).chr(91).'H'.chr(27).chr(91).'J'; //^[H^[J
     }
     #endregion
 }
