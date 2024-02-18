@@ -6,11 +6,12 @@ require_once(__DIR__ . '/Player/Human.php');
 class Euchre
 {
     public Deck $deck;
-    public string $trump;
     public int $pointsToWin;
     public array $teams = [];
     public bool $stickTheDealer;
     public bool $gameOver = false;
+    public ?Player $dealer = null;
+    public string|null $trump = null;
     public array $dealerPosition = [0, 0]; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
@@ -25,6 +26,8 @@ class Euchre
 
         // Start game
         // while (!$this->gameOver) {
+            // Who is dealing this trick?
+            $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
             // Init a new shuffled deck.
             $this->deck = new Deck();
             // deal cards
@@ -47,20 +50,23 @@ class Euchre
     /**
      * Iterate over each player and see who wants to call it.
      * 
-     * @return void
+     * @return string|null
      */
-    private function determineTrump(): void
+    private function determineTrump(): string|null
     {
-        // $flippedCard = $this->deck->cards[0];
-        // echo "Flipped a $flippedCard->type of $flippedCard->suit's!\n";
+        $flippedCard = $this->deck->cards[0];
+        echo "Flipped a $flippedCard->type of $flippedCard->suit's!\n";
 
-        // // Iterate over players and see who wants to call it.
-        // $called = false;
-        // for ($i = 0; $i < 4; $i++) {
-        //     $pos = $this->getNextPlayerPosition($this->dealerPosition);
-        //     $player = $this->teams[$pos[0]]['players'][$p[1]];
+        // Iterate over players and see who wants to order up the flipped card.
+        for ($i = 0; $i < 4; $i++) {
 
-        // }
+        }
+
+        // Card wasn't ordered up? Iterate over the players again and see if anyone wants to call it.
+
+        // Nobody called it? Figure out if its stick the dealer or not.
+
+        return null;
     }
 
     /**
@@ -71,7 +77,7 @@ class Euchre
     private function dealCards(): void
     {
         // Specify who the dealer is.
-        $player = $this->getPlayerAtPosition($this->dealerPosition);
+        $player = $this->dealer;
         echo "$player->name from team $player->teamNum is dealing the cards!\n";
 
         // Player iteration for dealing cards. Deal cards to dealer last.
