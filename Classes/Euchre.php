@@ -6,11 +6,12 @@ require_once(__DIR__ . '/Player/Human.php');
 class Euchre
 {
     public Deck $deck;
+    public string $trump;
     public int $pointsToWin;
     public array $teams = [];
     public bool $stickTheDealer;
     public bool $gameOver = false;
-    public array $dealerPosition = []; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
+    public array $dealerPosition = [0, 0]; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -30,9 +31,11 @@ class Euchre
             $this->dealCards();
             // go around and see who wants to call it
                 // stick the dealer or no? Handle it.
+            // $this->determineTrump();
             // trick begin, loop over players for turns.
             // trick over, apply points to winning team for this trick.
             // game won check, set gameOver to true if so.
+            // set new dealer position if game not over.
         // }
 
         // Game over
@@ -42,47 +45,44 @@ class Euchre
 
     #region game logic
     /**
+     * Iterate over each player and see who wants to call it.
+     * 
+     * @return void
+     */
+    private function determineTrump(): void
+    {
+        // $flippedCard = $this->deck->cards[0];
+        // echo "Flipped a $flippedCard->type of $flippedCard->suit's!\n";
+
+        // // Iterate over players and see who wants to call it.
+        // $called = false;
+        // for ($i = 0; $i < 4; $i++) {
+        //     $pos = $this->getNextPlayerPosition($this->dealerPosition);
+        //     $player = $this->teams[$pos[0]]['players'][$p[1]];
+
+        // }
+    }
+
+    /**
      * Deal cards to players before the trick begins.
      * 
      * @return void
      */
     private function dealCards(): void
     {
-        // Who is dealing the cards given the previous dealer's position?
-        $this->dealerPosition = $this->getNextPlayerPosition($this->dealerPosition);
-        $team = $this->dealerPosition[0] + 1;
-        $player = $this->teams[$this->dealerPosition[0]]['players'][$this->dealerPosition[1]];
-        echo "$player->name from team $team is dealing the cards!\n";
+        // Specify who the dealer is.
+        $player = $this->getPlayerAtPosition($this->dealerPosition);
+        echo "$player->name from team $player->teamNum is dealing the cards!\n";
 
         // Player iteration for dealing cards. Deal cards to dealer last.
-        $deltCount = 0;
-        $positionToDealTo = $this->getNextPlayerPosition($this->dealerPosition);
-        while ($deltCount != 4) {
-            // Move cards from deck to player's hand.
-            $player = $this->teams[$positionToDealTo[0]]['players'][$positionToDealTo[1]];
-            for ($i = 0; $i < 5; $i++) $player->hand[] = array_pop($this->deck->cards);
+        for ($i = 0; $i < 4; $i++) {
+            $player = $this->getPlayerAtPosition($player->nextPlayerPosition);
+
+            for ($j = 0; $j < 5; $j++) $player->hand[] = array_pop($this->deck->cards);
             echo "Delt 5 cards to $player->name. ";
-            
-            $positionToDealTo = $this->getNextPlayerPosition($positionToDealTo);
-            $deltCount++;
         }
 
         echo "\n";
-    }
-
-    /**
-     * Given an player position, who should be the next player in the iteration?
-     * TOOD - I hardcoded this, but it could be much better probably. I am just lazy :(
-     * 
-     * @return array
-     */
-    private function getNextPlayerPosition(array $position = []): array
-    {
-        if ($position && $position[0] == 0 && $position[1] == 0) return [1, 0]; // Was P1 from team 1, return P1 from team 2.
-        if ($position && $position[0] == 1 && $position[1] == 0) return [0, 1]; // Was P1 from team 2, return P2 from team 1.
-        if ($position && $position[0] == 0 && $position[1] == 1) return [1, 1]; // Was P2 from team 1, return P2 from team 2.
-
-        return [0, 0]; // Game is starting or we just finished the rotation, return P1 from team 1.
     }
     #engregion
 
@@ -166,7 +166,11 @@ class Euchre
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        array_push($team['players'], new Human($input)); // Humans for now, implement Bots later though.
+                        array_push($team['players'], new Human( // Humans for now, implement Bots later though.
+                            $input, 
+                            $teamNum,
+                            [$teamNum - 1, $i],
+                        ));
                         $validInput = true;
                     }
                 }
@@ -178,6 +182,16 @@ class Euchre
     #endregion
 
     #region helper functions
+    /**
+     * Returns the player object at the given position. 
+     * 
+     * @return Player
+     */
+    private function getPlayerAtPosition(array $position): Player
+    {
+        return $this->teams[$position[0]]['players'][$position[1]];
+    }
+
     /**
      * Clears the terminal of text.
      * 

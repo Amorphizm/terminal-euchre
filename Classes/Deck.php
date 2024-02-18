@@ -6,13 +6,13 @@ class Deck
 {
     public array $cards = [];
     private array $suits = ['diamond', 'spade', 'heart', 'club'];
-    private array $faces = [
+    private array $types = [
         '9' => 1,
         '10' => 2,
-        'J' => 3,
-        'Q' => 4,
-        'K' => 5,
-        'A' => 6,
+        'Jack' => 3,
+        'Queen' => 4,
+        'King' => 5,
+        'Ace' => 6,
     ];
 
     public function __construct()
@@ -29,8 +29,8 @@ class Deck
     private function initDeck(): void
     {
         foreach ($this->suits as $suit) {
-            foreach ($this->faces as $face => $level) {
-                array_push($this->cards, new Card($suit, $face, $level));
+            foreach ($this->types as $type => $level) {
+                array_push($this->cards, new Card($suit, $type, $level));
             }
         }
     }

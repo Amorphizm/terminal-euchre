@@ -4,12 +4,12 @@ class Card
 {
     public int $level;
     public string $suit;
-    public string $face;
+    public string $type;
 
-    public function __construct(string $suit, string $face, int $level)
+    public function __construct(string $suit, string $type, int $level)
     {
         $this->suit = $suit;
-        $this->face = $face;
+        $this->type = $type;
         $this->level = $level;
     }
 }
