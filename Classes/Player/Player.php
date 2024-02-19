@@ -16,6 +16,14 @@ abstract class Player
         $this->nextPlayerPosition = $this->getNextPlayerPosition($position);
     }
 
+    /**
+     * See if this player wants to order up the card to the dealer to declare trump.
+     * @param Card $card
+     * @param string $dealerName
+     * @param bool $isDealer
+     * 
+     * @return bool
+     */
     abstract function orderUpCardCheck(Card $card, string $dealerName, bool $isDealer): bool;
 
     /**

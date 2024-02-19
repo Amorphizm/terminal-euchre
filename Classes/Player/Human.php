@@ -9,14 +9,6 @@ class Human extends Player
       parent::__construct($name, $teamNum, $position);
     }
 
-    /**
-     * See if this player wants to order up the card to the dealer to declare trump.
-     * @param Card $card
-     * @param string $dealerName
-     * @param bool $isDealer
-     * 
-     * @return bool
-     */
     public function orderUpCardCheck(Card $card, string $dealerName, bool $isDealer): bool
     {
         $input = null;
