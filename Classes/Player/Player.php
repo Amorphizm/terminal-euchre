@@ -18,12 +18,19 @@ abstract class Player
     }
 
     /**
+     * Called if this player is the dealer and needs to pick up a card to replace with one in their hand.
+     * @param Card $card
+     * 
+     * @return void
+     */
+    abstract function processOrderUp(Card $card): void;
+
+    /**
      * See if this player wants to order up the card to the dealer to declare trump.
      * @param Card $card
      * @param string $dealerName
-     * @param bool $isDealer
      * 
-     * @return bool
+     * @return bool // does the player want the dealer to pick the card up?
      */
     abstract function orderUpCardCheck(Card $card, string $dealerName): bool;
 

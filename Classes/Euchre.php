@@ -35,8 +35,8 @@ class Euchre
             $this->dealCards();
             // go around and see who wants to call it
                 // stick the dealer or no? Handle it.
-            $this->determineTrump();
-            // trick begin, loop over players for turns.
+            $this->trump = $this->determineTrump();
+            // if we have a trump then the trick begins, loop over players for turns.
             // trick over, apply points to winning team for this trick.
             // game won check, set gameOver to true if so.
             // set new dealer position if game not over.
@@ -56,7 +56,7 @@ class Euchre
     private function determineTrump(): string|null
     {
         $flippedCard = $this->deck->cards[0];
-        echo "{$this->dealer->name} flipped a $flippedCard->type of $flippedCard->suit's!\n";
+        echo "{$this->dealer->name} flipped a $flippedCard->name!\n";
 
         // Iterate over players and see who wants to order up the flipped card.
         $player = null;
@@ -64,7 +64,10 @@ class Euchre
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
             if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
-                // $this->dealer->processOrderUp
+                echo "$player->name has ordered up the $flippedCard->name.\n";
+                $this->dealer->processOrderUp($flippedCard);
+                
+                return $flippedCard->suit;
             }
         }
 
@@ -178,7 +181,7 @@ class Euchre
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        array_push($team['players'], new Human( // Humans for now, implement Bots later though.
+                        array_push($team['players'], new Human( // Humans for now, implement Bots later though. 1st player is a human, remaining 3 should be bots.
                             $input, 
                             $teamNum,
                             [$teamNum - 1, $i],
