@@ -9,14 +9,14 @@ class Human extends Player
       parent::__construct($name, $teamNum, $position);
     }
 
-    public function orderUpCardCheck(Card $card, string $dealerName, bool $isDealer): bool
+    public function orderUpCardCheck(Card $card, string $dealerName): bool
     {
         $input = null;
         $validInput = false;
         $validInputs = ['y', 'yes', 'n', 'no'];
 
         while (!$validInput) {
-            echo "$this->name - Would you like " . ($isDealer ? '' : $dealerName . " ") . "to pick up the $card->type of $card->suit's?\n";
+            echo "$this->name - Would you like " . ($this->isDealer ? '' : $dealerName . " ") . "to pick up the $card->type of $card->suit's?\n";
             $input = readLine("yes or no: ");
 
             $validInput = in_array(strtolower($input), $validInputs);

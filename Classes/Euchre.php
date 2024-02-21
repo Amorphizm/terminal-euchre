@@ -28,6 +28,7 @@ class Euchre
         // while (!$this->gameOver) {
             // Who is dealing this trick?
             $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
+            $this->dealer->isDealer = true;
             // Init a new shuffled deck.
             $this->deck = new Deck();
             // deal cards
@@ -55,15 +56,14 @@ class Euchre
     private function determineTrump(): string|null
     {
         $flippedCard = $this->deck->cards[0];
-        echo "Flipped a $flippedCard->type of $flippedCard->suit's!\n";
+        echo "{$this->dealer->name} flipped a $flippedCard->type of $flippedCard->suit's!\n";
 
         // Iterate over players and see who wants to order up the flipped card.
         $player = null;
         for ($i = 0; $i < 4; $i++) {
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
-            $isDealer = $i == 3;
-            if ($player->orderUpCardCheck($flippedCard, $this->dealer->name, $isDealer)) {
+            if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
                 // $this->dealer->processOrderUp
             }
         }
@@ -83,12 +83,12 @@ class Euchre
     private function dealCards(): void
     {
         // Specify who the dealer is.
-        $player = $this->dealer;
-        echo "$player->name from team $player->teamNum is dealing the cards!\n";
+        echo "{$this->dealer->name} from team {$this->dealer->teamNum} is dealing the cards!\n";
 
         // Player iteration for dealing cards. Deal cards to dealer last.
+        $player = null;
         for ($i = 0; $i < 4; $i++) {
-            $player = $this->getPlayerAtPosition($player->nextPlayerPosition);
+            $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
 
             for ($j = 0; $j < 5; $j++) $player->hand[] = array_pop($this->deck->cards);
             echo "Delt 5 cards to $player->name. ";

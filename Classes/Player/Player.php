@@ -6,6 +6,7 @@ abstract class Player
     public int $teamNum;
     public array $hand = [];
     public array $position = []; // team num, player num.
+    public bool $isDealer = false;
     public array $nextPlayerPosition = []; // Pointer to next player in a given iteration (dealing cards, tricks).
 
     public function __construct(string $name, int $teamNum, array $position)
@@ -24,7 +25,7 @@ abstract class Player
      * 
      * @return bool
      */
-    abstract function orderUpCardCheck(Card $card, string $dealerName, bool $isDealer): bool;
+    abstract function orderUpCardCheck(Card $card, string $dealerName): bool;
 
     /**
      * Given an player position, who should be the next player in the iteration?
