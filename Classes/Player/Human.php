@@ -44,7 +44,7 @@ class Human extends Player
             $cards .= ($key + 1) . '. ' . $card->name . $divider;
         }
 
-        echo "Your hand - \n $cards \n";
+        echo "Your hand - \n$cards\n";
     }
 }
 
