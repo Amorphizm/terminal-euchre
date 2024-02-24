@@ -29,8 +29,7 @@ class Euchre
             if ($this->trump) $this->trump = null;
 
             // Set the dealer for this trick.
-            $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
-            $this->dealer->isDealer = true;
+            $this->setDealer();
             
             // Determine what trump is for this trick.
             while (true) {
@@ -45,8 +44,7 @@ class Euchre
                 // Trump could not be determined. Set the next dealer and try again.
                 $this->clearScreen();
                 echo "Could not determine trump :( Lets re-deal the cards and try again!\n";
-                $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
-                $this->dealer->isDealer = true;
+                $this->setDealer();
                 sleep(3);
                 $this->clearScreen();
             }
@@ -224,6 +222,19 @@ class Euchre
     #endregion
 
     #region helper functions
+    /**
+     * Handles setting the dealer for the trick. 
+     * 
+     * @return void
+     */
+    private function setDealer(): void 
+    {
+        // Set old dealer's isDealer attribute to false first.
+        if ($this->dealer) $this->dealer->isDealer = false;
+        $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
+        $this->dealer->isDealer = true;
+    }
+
     /**
      * Returns the player object at the given position. 
      * 
