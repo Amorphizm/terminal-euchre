@@ -17,12 +17,12 @@ abstract class Player
         $this->nextPlayerPosition = $this->getNextPlayerPosition($position);
     }
 
-    // /**
-    //  * Called if this player is the dealer and needs to pick up a card to replace with one in their hand.
-    //  * 
-    //  * @return void
-    //  */
-    // abstract function selectTrump(): void;
+    /**
+     * Allows the player to determine 
+     * 
+     * @return ?string $suit
+     */
+    abstract function selectTrump(bool $stickTheDealer): ?string;
 
     /**
      * Called if this player is the dealer and needs to pick up a card to replace with one in their hand.

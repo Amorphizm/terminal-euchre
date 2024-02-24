@@ -9,6 +9,34 @@ class Human extends Player
       parent::__construct($name, $teamNum, $position);
     }
 
+    public function selectTrump(bool $stickTheDealer): ?string 
+    {
+        $this->displayHand();
+        $message = "Enter the position of the card that has the suit you would like to be trump";
+
+        $stickTheDealer = $this->isDealer && $stickTheDealer;
+        $message .= $stickTheDealer ? ': ' : ' OR p to pass: ';
+
+        while (true) {
+            $input = readLine($message);
+
+            // Is not the dealer OR is the dealer and its not stick the dealer and they want to pass the turn.
+            if (!is_numeric($input) && !($this->isDealer && $stickTheDealer) && in_array(strtolower($input), ['p', 'pass'])) break;
+            
+            if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
+                $suit = $this->hand[((int) $input) - 1]->suit;
+                echo "$this->name named $suit" . "s as trump!\n";
+
+                return $suit;
+            }
+
+            echo "Whoops! Couldn't find a card at that position. Try again!\n";
+        }
+
+        echo "$this->name passes.\n";
+        return null;
+    }
+
     public function processOrderUp(Card $card): void
     {
         $this->displayHand();
@@ -17,9 +45,7 @@ class Human extends Player
             $input = readline("Enter the position of the card you would like to replace (eg. 1 - 5): ");
 
             if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
-                $position = ((int) $input) - 1;
-                $this->hand[$position] = $card;
-
+                $this->hand[((int) $input) - 1] = $card;
                 break;
             }
 

@@ -9,7 +9,6 @@ class Euchre
     public int $pointsToWin;
     public array $teams = [];
     public bool $stickTheDealer;
-    public bool $gameOver = false;
     public ?Player $dealer = null;
     public string|null $trump = null;
     public array $dealerPosition = [0, 0]; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
@@ -25,19 +24,31 @@ class Euchre
         $this->clearScreen();
 
         // Start game
-        // while (!$this->gameOver) {
-            // Who is dealing this trick?
+        // while (true) {
+            // Reset trump if not null.
+            if ($this->trump) $this->trump = null;
+
+            // Set the dealer for this trick.
             $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
             $this->dealer->isDealer = true;
-            // Init a new shuffled deck.
+            
+            // Determine what trump is for this trick.
             while (true) {
+                // Init a new deck and deal the cards.
                 $this->deck = new Deck();
-                // deal cards
                 $this->dealCards();
-                // go around and see who wants to call it
-                    // stick the dealer or no? Handle it.
+
+                // Go around and see who wants to call trump.
                 $this->trump = $this->determineTrump();
                 if ($this->trump) break;
+
+                // Trump could not be determined. Set the next dealer and try again.
+                $this->clearScreen();
+                echo "Could not determine trump :( Lets re-deal the cards and try again!\n";
+                $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
+                $this->dealer->isDealer = true;
+                sleep(3);
+                $this->clearScreen();
             }
 
             $this->clearScreen();
@@ -45,10 +56,7 @@ class Euchre
 
             // if we have a trump then the trick begins, loop over players for turns.
             // trick over, apply points to winning team for this trick.
-            // game won check, set gameOver to true if so.
-            // reset stuff
-                // set new dealer position if game not over.
-                // set trump to null
+            // game won check, break if so.
         // }
 
         // Game over
@@ -73,6 +81,7 @@ class Euchre
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
             if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
+                $this->clearScreen();
                 echo "$player->name has ordered up the $flippedCard->name.\n";
                 $this->dealer->processOrderUp($flippedCard);
                 
@@ -80,17 +89,16 @@ class Euchre
             }
         }
 
+        $this->clearScreen();
+
         // Card wasn't ordered up? Iterate over the players again and see if anyone wants to call it.
-        // $player = null;
-        // for ($i = 0; $i < 4; $i++) {
-        //     $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
+        $player = null;
+        for ($i = 0; $i < 4; $i++) {
+            $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
-        //     if ($player->selectTrump()) {
-
-        //     }
-        // }
-
-        // Nobody called it? Figure out if its stick the dealer or not.
+            $suit = $player->selectTrump($this->stickTheDealer);
+            if ($suit) return $suit;
+        }
 
         return null;
     }
@@ -110,6 +118,8 @@ class Euchre
         for ($i = 0; $i < 4; $i++) {
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
 
+            // Clear out the player's old hand before adding cards.
+            $player->hand = [];
             for ($j = 0; $j < 5; $j++) $player->hand[] = array_pop($this->deck->cards);
             echo "Delt 5 cards to $player->name. ";
         }
