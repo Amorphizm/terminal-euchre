@@ -12,6 +12,19 @@ class Human extends Player
     public function processOrderUp(Card $card): void
     {
         $this->displayHand();
+
+        while (true) {
+            $input = readline("Enter the position of the card you would like to replace (eg. 1 - 5): ");
+
+            if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
+                $position = ((int) $input) - 1;
+                $this->hand[$position] = $card;
+
+                break;
+            }
+
+            echo "Whoops! Couldn't find a card at that position. Try again!\n";
+        }
     }
 
     public function orderUpCardCheck(Card $card, string $dealerName): bool

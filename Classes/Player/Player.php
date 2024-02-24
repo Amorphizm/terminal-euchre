@@ -17,6 +17,13 @@ abstract class Player
         $this->nextPlayerPosition = $this->getNextPlayerPosition($position);
     }
 
+    // /**
+    //  * Called if this player is the dealer and needs to pick up a card to replace with one in their hand.
+    //  * 
+    //  * @return void
+    //  */
+    // abstract function selectTrump(): void;
+
     /**
      * Called if this player is the dealer and needs to pick up a card to replace with one in their hand.
      * @param Card $card

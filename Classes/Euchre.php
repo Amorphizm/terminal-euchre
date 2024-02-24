@@ -30,16 +30,25 @@ class Euchre
             $this->dealer = $this->getPlayerAtPosition(!$this->dealer ? [0, 0] : $this->dealer->nextPlayerPosition);
             $this->dealer->isDealer = true;
             // Init a new shuffled deck.
-            $this->deck = new Deck();
-            // deal cards
-            $this->dealCards();
-            // go around and see who wants to call it
-                // stick the dealer or no? Handle it.
-            $this->trump = $this->determineTrump();
+            while (true) {
+                $this->deck = new Deck();
+                // deal cards
+                $this->dealCards();
+                // go around and see who wants to call it
+                    // stick the dealer or no? Handle it.
+                $this->trump = $this->determineTrump();
+                if ($this->trump) break;
+            }
+
+            $this->clearScreen();
+            echo "Trump for this trick is $this->trump" . "s!\n";
+
             // if we have a trump then the trick begins, loop over players for turns.
             // trick over, apply points to winning team for this trick.
             // game won check, set gameOver to true if so.
-            // set new dealer position if game not over.
+            // reset stuff
+                // set new dealer position if game not over.
+                // set trump to null
         // }
 
         // Game over
@@ -72,6 +81,14 @@ class Euchre
         }
 
         // Card wasn't ordered up? Iterate over the players again and see if anyone wants to call it.
+        // $player = null;
+        // for ($i = 0; $i < 4; $i++) {
+        //     $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
+            
+        //     if ($player->selectTrump()) {
+
+        //     }
+        // }
 
         // Nobody called it? Figure out if its stick the dealer or not.
 
