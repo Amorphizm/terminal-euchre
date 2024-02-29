@@ -123,6 +123,7 @@ class Euchre
         $partner = $this->getPlayerAtPosition($player->partnerPosition);
 
         echo "$partner->name is sitting out this trick!\n";
+        sleep(3);
         $partner->isSittingOut = true;
     }
 
