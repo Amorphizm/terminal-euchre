@@ -11,7 +11,7 @@ class Euchre
     public bool $stickTheDealer;
     public ?Player $dealer = null;
     public string|null $trump = null;
-    public array $dealerPosition = [0, 0]; // index 0 is the team, index 1 is the player, used to traverse 2d teams array.
+    public array $sittingOutPosition = []; // position of a player who is sitting out in a given trick. 
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -27,6 +27,12 @@ class Euchre
         // while (true) {
             // Reset trump if not null.
             if ($this->trump) $this->trump = null;
+
+            // Reset player who sat out the previous trick.
+            if ($this->sittingOutPosition) {
+                ($this->getPlayerAtPosition($this->sittingOutPosition))->isSittingOut = false;
+                $this->sittingOutPosition = [];
+            }
 
             // Set the dealer for this trick.
             $this->setDealer();
@@ -53,6 +59,7 @@ class Euchre
             echo "Trump for this trick is $this->trump" . "s!\n";
 
             // if we have a trump then the trick begins, loop over players for turns.
+                // Note that if a players isSittingOut value is true then skip them. That means their partner is going alone.
             // trick over, apply points to winning team for this trick.
             // game won check, break if so.
         // }
@@ -81,8 +88,9 @@ class Euchre
             if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
                 $this->clearScreen();
                 echo "$player->name has ordered up the $flippedCard->name.\n";
+
+                $this->aloneCheck($player);
                 $this->dealer->processOrderUp($flippedCard);
-                
                 return $flippedCard->suit;
             }
         }
@@ -95,10 +103,27 @@ class Euchre
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
             $suit = $player->selectTrump($this->stickTheDealer);
-            if ($suit) return $suit;
+            if ($suit) {
+                $this->aloneCheck($player);
+                return $suit;
+            }
         }
 
         return null;
+    }
+
+    /**
+     * See if the given player would like to go alone and if so set their partners isSittingOut value to true.
+     * 
+     * @return void
+     */
+    private function aloneCheck(Player $player): void
+    {
+        if (!$player->processAloneCheck()) return;
+        $partner = $this->getPlayerAtPosition($player->partnerPosition);
+
+        echo "$partner->name is sitting out this trick!\n";
+        $partner->isSittingOut = true;
     }
 
     /**
@@ -179,6 +204,8 @@ class Euchre
                 $validInput = true;
             }
         }
+
+        $this->clearScreen();
     }
 
     /**

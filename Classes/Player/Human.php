@@ -37,10 +37,26 @@ class Human extends Player
         return null;
     }
 
-    public function processOrderUp(Card $card): void
+    public function processAloneCheck(): bool
     {
         $this->displayHand();
 
+        while (true) {
+            $input = strtolower(readline("$this->name, would you like to go alone for this trick? (y or n): "));
+
+            if (in_array($input, ['y', 'yes', 'n', 'no'])) break;
+            echo "Whoops! You entered something incorrect. Please try again!\n";
+        }
+
+        $this->clearScreen();
+        return in_array($input, ['y', 'yes']);
+    }
+
+    public function processOrderUp(Card $card): void
+    {
+        if ($this->isSittingOut) return;
+
+        $this->displayHand();
         while (true) {
             $input = readline("Enter the position of the card you would like to replace (eg. 1 - 5): ");
 

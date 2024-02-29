@@ -7,6 +7,8 @@ abstract class Player
     public array $hand = [];
     public array $position = []; // team num, player num.
     public bool $isDealer = false;
+    public bool $isSittingOut = false; // Set to true if their partner is going alone.
+    public array $partnerPosition = [];
     public array $nextPlayerPosition = []; // Pointer to next player in a given iteration (dealing cards, tricks).
 
     public function __construct(string $name, int $teamNum, array $position)
@@ -15,6 +17,7 @@ abstract class Player
         $this->teamNum = $teamNum;
         $this->position = $position;
         $this->nextPlayerPosition = $this->getNextPlayerPosition($position);
+        $this->partnerPosition = [$teamNum - 1, $this->position[1] ? 0 : 1];
     }
 
     /**
@@ -23,6 +26,13 @@ abstract class Player
      * @return ?string $suit
      */
     abstract function selectTrump(bool $stickTheDealer): ?string;
+
+    /**
+     * Used to see if the player who determined trump would like to go alone or not.
+     * 
+     * @return bool
+     */
+    abstract function processAloneCheck(): bool;
 
     /**
      * Called if this player is the dealer and needs to pick up a card to replace with one in their hand.
@@ -54,6 +64,16 @@ abstract class Player
         if ($position && $position[0] == 0 && $position[1] == 1) return [1, 1]; // Was P2 from team 1, return P2 from team 2.
 
         return [0, 0]; // Return P1 from team 1.
+    }
+
+    /**
+     * Clears the terminal of text.
+     * 
+     * @return void
+     */
+    protected function clearScreen(): void
+    {
+        echo chr(27).chr(91).'H'.chr(27).chr(91).'J'; //^[H^[J
     }
 }
 
