@@ -24,45 +24,9 @@ class Euchre
         $this->clearScreen();
 
         // Start game
-        // while (true) {
-            // Reset trump if not null.
-            if ($this->trump) $this->trump = null;
-
-            // Reset player who sat out the previous trick.
-            if ($this->sittingOutPosition) {
-                ($this->getPlayerAtPosition($this->sittingOutPosition))->isSittingOut = false;
-                $this->sittingOutPosition = [];
-            }
-
-            // Set the dealer for this trick.
-            $this->setDealer();
-            
-            // Determine what trump is for this trick.
-            while (true) {
-                // Init a new deck and deal the cards.
-                $this->deck = new Deck();
-                $this->dealCards();
-
-                // Go around and see who wants to call trump.
-                $this->trump = $this->determineTrump();
-                if ($this->trump) break;
-
-                // Trump could not be determined. Set the next dealer and try again.
-                $this->clearScreen();
-                echo "Could not determine trump :( Lets re-deal the cards and try again!\n";
-                $this->setDealer();
-                sleep(3);
-                $this->clearScreen();
-            }
-
-            $this->clearScreen();
-            echo "Trump for this trick is $this->trump" . "s!\n";
-
-            // if we have a trump then the trick begins, loop over players for turns.
-                // Note that if a players isSittingOut value is true then skip them. That means their partner is going alone.
-            // trick over, apply points to winning team for this trick.
-            // game won check, break if so.
-        // }
+        while (true) {
+            if ($this->gameLoopLogic()) break;
+        }
 
         // Game over
         // Display message, fun stats about the game?
@@ -70,6 +34,62 @@ class Euchre
     }
 
     #region game logic
+    /**
+     * The main game loop! 
+     * 
+     * @return bool true if the game is over
+     */
+    private function gameLoopLogic(): bool
+    {
+        $this->setValuesForNextTrick();
+
+        // Determine what trump is for this trick.
+        while (true) {
+            // Init a new deck and deal the cards.
+            $this->deck = new Deck();
+            $this->dealCards();
+
+            // Go around and see who wants to call trump.
+            $this->trump = $this->determineTrump();
+            if ($this->trump) break;
+
+            // Trump could not be determined. Set the next dealer and try again.
+            $this->clearScreen();
+            echo "Could not determine trump :( Lets re-deal the cards and try again!\n";
+            $this->setDealer();
+            sleep(3);
+            $this->clearScreen();
+        }
+
+        $this->clearScreen();
+        echo "Trump for this trick is $this->trump" . "s!\n";
+
+        // $this->playTrick() ? 
+        // if we have a trump then the trick begins, loop over players for turns.
+        // Note that if a players isSittingOut value is true then skip them. That means their partner is going alone.
+        // trick over, apply points to winning team for this trick.
+        // game won check, break if so.
+
+        return true; // for testing!
+    }
+
+    /**
+     * Upkeep that needs to be done before starting a trick.
+     * 
+     * @return void
+     */
+    private function setValuesForNextTrick(): void
+    {
+        $this->trump = null;
+
+        if ($this->sittingOutPosition) {
+            ($this->getPlayerAtPosition($this->sittingOutPosition))->isSittingOut = false;
+            $this->sittingOutPosition = [];
+        }
+
+        $this->setDealer();
+    }
+
     /**
      * Iterate over each player and see who wants to call it.
      * 
