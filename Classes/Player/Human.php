@@ -58,7 +58,7 @@ class Human extends Player
 
         $this->displayHand();
         while (true) {
-            $input = readline("Enter the position of the card you would like to replace (eg. 1 - 5): ");
+            $input = readline("Enter the position of the card you would like to replace with the $card->name (eg. 1 - 5): ");
 
             if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
                 $this->hand[((int) $input) - 1] = $card;
@@ -74,6 +74,7 @@ class Human extends Player
         $input = null;
         $validInput = false;
         $validInputs = ['y', 'yes', 'n', 'no'];
+        $this->displayHand();
 
         while (!$validInput) {
             echo "$this->name - Would you like " . ($this->isDealer ? '' : $dealerName . " ") . "to pick up the $card->name?\n";
