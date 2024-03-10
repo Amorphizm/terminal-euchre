@@ -73,6 +73,11 @@ class Euchre
         return true; // for testing!
     }
 
+    private function playTrick(): void
+    {
+        // Who called trump?
+    }
+
     /**
      * Upkeep that needs to be done before starting a trick.
      * 
@@ -85,6 +90,11 @@ class Euchre
         if ($this->sittingOutPosition) {
             ($this->getPlayerAtPosition($this->sittingOutPosition))->isSittingOut = false;
             $this->sittingOutPosition = [];
+        }
+
+        foreach ($this->teams as $team) {
+            $team['calledTrump'] = false;
+            $team['trickPoints'] = 0;
         }
 
         $this->setDealer();
@@ -108,6 +118,7 @@ class Euchre
             if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
                 $this->clearScreen();
                 echo "$player->name has ordered up the $flippedCard->name.\n";
+                $this->teams[$player->teamNum]['calledTrump'] = true;
 
                 $this->aloneCheck($player);
                 $this->dealer->processOrderUp($flippedCard);
@@ -124,6 +135,7 @@ class Euchre
             
             $suit = $player->selectTrump($this->stickTheDealer);
             if ($suit) {
+                $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->aloneCheck($player);
                 return $suit;
             }
@@ -238,9 +250,12 @@ class Euchre
     {
         $maxCharsForName = 15;
         while (($teamNum = count($this->teams) + 1) <= 2) {
+            $this->clearScreen();
             $team = [ // Should this be its own class?
                 'points' => 0,
                 'players' => [],
+                'calledTrump' => false,
+                'trickPoints' => 0,
             ];
             echo "Setup for team $teamNum.\n";
 
