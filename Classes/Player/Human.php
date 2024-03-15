@@ -9,6 +9,27 @@ class Human extends Player
       parent::__construct($name, $teamNum, $position);
     }
 
+    public function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump): Card
+    {
+        $this->displayHand();
+        
+        while (true) {
+            if ($suitToFollow) echo "Suit to follow is $suitToFollow" . "s.\n";
+            $input = readline("Enter the position of the card that you would like to play: ");
+
+            if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
+                $card =  $this->hand[((int) $input) - 1];
+                if (!$suitToFollow || $canFollowSuit && ($card->suit == $suitToFollow || ($card->type == 'Jack' && $card->leftBower == $trump && $suitToFollow == $trump)) || !$canFollowSuit) {
+                    echo "$this->name played the $card->name\n";
+                    unset($this->hand[((int) $input) - 1]);
+                    return $card;
+                }
+            }
+
+            echo "Whoops! Couldn't find a card or you need to follow suit. Try again!\n";
+        }
+    }
+
     public function selectTrump(bool $stickTheDealer): ?string 
     {
         $this->displayHand();
@@ -100,7 +121,7 @@ class Human extends Player
             $cards .= ($key + 1) . '. ' . $card->name . $divider;
         }
 
-        echo "Your hand - \n$cards\n";
+        echo "Your hand $this->name - \n$cards\n";
     }
 }
 

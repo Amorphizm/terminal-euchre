@@ -21,6 +21,14 @@ abstract class Player
     }
 
     /**
+     * See what card the user would like to play during a trick.
+     * If suitToFollow is null then that means the user is playing the first card and setting the suit to follow.
+     * 
+     * @return Card $card
+     */
+    abstract function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump): Card;
+
+    /**
      * Allows the player to determine 
      * 
      * @return ?string $suit

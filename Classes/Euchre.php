@@ -12,6 +12,7 @@ class Euchre
     public ?Player $dealer = null;
     public string|null $trump = null;
     public array $sittingOutPosition = []; // position of a player who is sitting out in a given trick. 
+    public string $cardsPlayedDisplay = '';
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -24,9 +25,7 @@ class Euchre
         $this->clearScreen();
 
         // Start game
-        while (true) {
-            if ($this->gameLoopLogic()) break;
-        }
+        while (true) if ($this->isGameOver()) break;
 
         // Game over
         // Display message, fun stats about the game?
@@ -39,7 +38,7 @@ class Euchre
      * 
      * @return bool true if the game is over
      */
-    private function gameLoopLogic(): bool
+    private function isGameOver(): bool
     {
         $this->setValuesForNextTrick();
 
@@ -62,8 +61,7 @@ class Euchre
         }
 
         $this->clearScreen();
-        echo "Trump for this trick is $this->trump" . "s!\n";
-
+        $this->playTrick();
         // $this->playTrick() ? 
         // if we have a trump then the trick begins, loop over players for turns.
         // Note that if a players isSittingOut value is true then skip them. That means their partner is going alone.
@@ -75,7 +73,50 @@ class Euchre
 
     private function playTrick(): void
     {
-        // Who called trump?
+        // Left of the dealer starts. Then use player position that is passed in since they had the highest card on the previous point.
+        $playerToStartPos = $this->dealer->nextPlayerPosition;
+        for ($i = 0; $i < 5; $i++) $playerToStartPos = $this->playTrickPoint($playerToStartPos);
+
+        // Verify trick points after playing one out. Then decide how to actually apply that to the overall match points.
+        echo json_encode($this->teams);
+    }
+
+    private function playTrickPoint(array $positionToStart): array
+    {
+        $player = null;
+        $playedCards = [];
+        $winningTeamNum = 0;
+        $suitToFollow = null;
+        $playerWithHighestCard = null;
+
+        for ($i = 0; $i < 4; $i++) {
+            $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $positionToStart);
+            if ($player->isSittingOut) continue;
+
+            // Display the cards that have been played.
+            echo "Trump for this trick is $this->trump" . "s!\n";
+            if ($this->cardsPlayedDisplay) echo $this->cardsPlayedDisplay . "\n" ;
+
+            $canFollowSuit = $this->canFollowSuit($player, $suitToFollow, $this->trump);
+            $playedCards[] = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
+            if (!$suitToFollow) $suitToFollow = $playedCards[$i]->suit;
+            $this->cardsPlayedDisplay .= $playedCards[$i]->name . " -> ";
+
+            if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
+                !isset($playedCardsValues[$i - 1]) || 
+                $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) < $playedCardsValues[$i]->getValue($suitToFollow, $this->trump)
+            ) {
+                $winningTeamNum = $player->teamNum - 1;
+                $playerWithHighestCard = $player;
+            }
+
+            $this->clearScreen();
+        }
+
+        echo json_encode($this->teams[$winningTeamNum]['trickPoints']) . "\n";
+        $this->cardsPlayedDisplay = '';
+        $this->teams[$winningTeamNum]['trickPoints'] += 1;
+        return $playerWithHighestCard->position;
     }
 
     /**
@@ -316,6 +357,20 @@ class Euchre
     private function clearScreen(): void
     {
         echo chr(27).chr(91).'H'.chr(27).chr(91).'J'; //^[H^[J
+    }
+
+    /**
+     * Checks the players current hand to see if they can follow suit or not.
+     * If suitToFollow is null then that means the user is playing the first card and setting the suit to follow.
+     * 
+     * @return bool
+     */
+    protected function canFollowSuit(Player $player, ?string $suitToFollow, string $trump): bool
+    {
+        if (!$suitToFollow) return true;
+        foreach ($player->hand as $card) if ($card->suit == $suitToFollow || $suitToFollow == $trump && $card->type == 'Jack' && $card->leftBower == $trump) return true;
+
+        return false;
     }
     #endregion
 }
