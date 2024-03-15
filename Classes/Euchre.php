@@ -106,17 +106,19 @@ class Euchre
                     $suitToFollow = $playedCards[$i]->suit;
                 }
             }
-            
+
             $this->cardsPlayedDisplay .= $playedCards[$i]->name . " -> ";
+            // echo json_encode($playedCards) . "\n";
+            if ($i != 0) echo "Comparing " . $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) ." to " . $playedCards[$i]->getValue($suitToFollow, $this->trump) . "\n";
             if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
-                !isset($playedCardsValues[$i - 1]) || 
-                $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) < $playedCardsValues[$i]->getValue($suitToFollow, $this->trump)
+                $i == 0 || 
+                $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) < $playedCards[$i]->getValue($suitToFollow, $this->trump)
             ) {
                 $winningTeamNum = $player->teamNum - 1;
                 $playerWithHighestCard = $player;
             }
 
-            $this->clearScreen();
+            // $this->clearScreen();
         }
 
         echo json_encode($this->teams[$winningTeamNum]['trickPoints']) . "\n";
