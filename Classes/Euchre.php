@@ -99,9 +99,15 @@ class Euchre
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow, $this->trump);
             $playedCards[] = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
-            if (!$suitToFollow) $suitToFollow = $playedCards[$i]->suit;
+            if (!$suitToFollow) {
+                if ($playedCards[$i]->type == 'Jack' && $playedCards[$i]->leftBower == $this->trump) {
+                    $suitToFollow = $this->trump;   
+                } else {
+                    $suitToFollow = $playedCards[$i]->suit;
+                }
+            }
+            
             $this->cardsPlayedDisplay .= $playedCards[$i]->name . " -> ";
-
             if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
                 !isset($playedCardsValues[$i - 1]) || 
                 $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) < $playedCardsValues[$i]->getValue($suitToFollow, $this->trump)
