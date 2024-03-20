@@ -32,6 +32,11 @@ class Card
 
         return 0; // No suit, no trump, no points :(
     }
+
+    public function getSuit(string $trump): string
+    {
+        return ($this->type == 'Jack' && $this->leftBower == $trump) ? $trump : $this->suit;
+    }
 }
 
 ?>

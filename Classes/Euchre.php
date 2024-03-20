@@ -12,7 +12,6 @@ class Euchre
     public ?Player $dealer = null;
     public string|null $trump = null;
     public array $sittingOutPosition = []; // position of a player who is sitting out in a given trick. 
-    public string $cardsPlayedDisplay = '';
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
     private array $pointsToWinChoices = ['5', '7', '10'];
 
@@ -75,7 +74,9 @@ class Euchre
     {
         // Left of the dealer starts. Then use player position that is passed in since they had the highest card on the previous point.
         $playerToStartPos = $this->dealer->nextPlayerPosition;
-        for ($i = 0; $i < 5; $i++) $playerToStartPos = $this->playTrickPoint($playerToStartPos);
+        for ($i = 0; $i < 5; $i++)  {
+            $playerToStartPos = $this->playTrickPoint($playerToStartPos);
+        }
 
         // Verify trick points after playing one out. Then decide how to actually apply that to the overall match points.
         echo json_encode($this->teams);
@@ -87,7 +88,11 @@ class Euchre
         $playedCards = [];
         $winningTeamNum = 0;
         $suitToFollow = null;
-        $playerWithHighestCard = null;
+        $cardsPlayedDisplay = '';
+        $playerWithHighestCard = [
+            'player' => null,
+            'card' => null,
+        ];
 
         for ($i = 0; $i < 4; $i++) {
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $positionToStart);
@@ -95,9 +100,9 @@ class Euchre
 
             // Display the cards that have been played.
             echo "Trump for this trick is $this->trump" . "s!\n";
-            if ($this->cardsPlayedDisplay) echo $this->cardsPlayedDisplay . "\n" ;
+            if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n" ;
 
-            $canFollowSuit = $this->canFollowSuit($player, $suitToFollow, $this->trump);
+            $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
             $playedCards[] = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
             if (!$suitToFollow) {
                 if ($playedCards[$i]->type == 'Jack' && $playedCards[$i]->leftBower == $this->trump) {
@@ -107,24 +112,25 @@ class Euchre
                 }
             }
 
-            $this->cardsPlayedDisplay .= $playedCards[$i]->name . " -> ";
-            // echo json_encode($playedCards) . "\n";
-            if ($i != 0) echo "Comparing " . $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) ." to " . $playedCards[$i]->getValue($suitToFollow, $this->trump) . "\n";
+            $cardsPlayedDisplay .= "($player->name) " . $playedCards[$i]->name . " -> "; // colorize this list with green for the current highest player and their card and red for the rest. Should update.
+
             if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
                 $i == 0 || 
-                $playedCards[$i - 1]->getValue($suitToFollow, $this->trump) < $playedCards[$i]->getValue($suitToFollow, $this->trump)
+                $playerWithHighestCard['card']?->getValue($suitToFollow, $this->trump) < $playedCards[$i]->getValue($suitToFollow, $this->trump)
             ) {
                 $winningTeamNum = $player->teamNum - 1;
-                $playerWithHighestCard = $player;
+                $playerWithHighestCard['player'] = $player;
+                $playerWithHighestCard['card'] = $playedCards[$i];
             }
 
-            // $this->clearScreen();
+            $this->clearScreen();
         }
 
-        echo json_encode($this->teams[$winningTeamNum]['trickPoints']) . "\n";
-        $this->cardsPlayedDisplay = '';
+        echo $cardsPlayedDisplay . "\n" ; // Remove the last -> on this.
+        echo $playerWithHighestCard['player']->name . " won the point and will start the next one!\n";
+
         $this->teams[$winningTeamNum]['trickPoints'] += 1;
-        return $playerWithHighestCard->position;
+        return $playerWithHighestCard['player']->position;
     }
 
     /**
@@ -226,10 +232,7 @@ class Euchre
             // Clear out the player's old hand before adding cards.
             $player->hand = [];
             for ($j = 0; $j < 5; $j++) $player->hand[] = array_pop($this->deck->cards);
-            echo "Delt 5 cards to $player->name. ";
         }
-
-        echo "\n";
     }
     #engregion
 
@@ -373,10 +376,10 @@ class Euchre
      * 
      * @return bool
      */
-    protected function canFollowSuit(Player $player, ?string $suitToFollow, string $trump): bool
+    protected function canFollowSuit(Player $player, ?string $suitToFollow): bool
     {
         if (!$suitToFollow) return true;
-        foreach ($player->hand as $card) if ($card->suit == $suitToFollow || $suitToFollow == $trump && $card->type == 'Jack' && $card->leftBower == $trump) return true;
+        foreach ($player->hand as $card) if ($card->getSuit($this->trump) == $suitToFollow) return true;
 
         return false;
     }

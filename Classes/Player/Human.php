@@ -11,15 +11,19 @@ class Human extends Player
 
     public function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump): Card
     {
+        $suitPlayed = '';
         $this->displayHand();
         
         while (true) {
-            if ($suitToFollow) echo "Suit to follow is $suitToFollow" . "s.\n";
             $input = readline("Enter the position of the card that you would like to play: ");
 
             if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
-                $card =  $this->hand[((int) $input) - 1];
-                if (!$suitToFollow || $canFollowSuit && ($card->suit == $suitToFollow || ($card->type == 'Jack' && $card->leftBower == $trump && $suitToFollow == $trump)) || !$canFollowSuit) {
+                $card = $this->hand[((int) $input) - 1];
+                
+                $suitPlayed = $card->getSuit($trump);
+                $isFollowingSuit = $canFollowSuit && $suitPlayed == $suitToFollow;
+
+                if (!$suitToFollow || $isFollowingSuit || !$canFollowSuit) {
                     echo "$this->name played the $card->name\n";
                     unset($this->hand[((int) $input) - 1]);
                     return $card;
