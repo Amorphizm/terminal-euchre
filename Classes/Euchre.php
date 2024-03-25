@@ -95,12 +95,13 @@ class Euchre
         ];
 
         for ($i = 0; $i < 4; $i++) {
+            $isCurrentHighest = false;
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $positionToStart);
             if ($player->isSittingOut) continue;
 
             // Display the cards that have been played.
             echo "Trump for this trick is $this->trump" . "s!\n";
-            if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n" ;
+            if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n";
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
             $playedCards[] = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
@@ -112,21 +113,21 @@ class Euchre
                 }
             }
 
-            $cardsPlayedDisplay .= "($player->name) " . $playedCards[$i]->name . " -> "; // colorize this list with green for the current highest player and their card and red for the rest. Should update.
-
             if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
                 $i == 0 || 
                 $playerWithHighestCard['card']?->getValue($suitToFollow, $this->trump) < $playedCards[$i]->getValue($suitToFollow, $this->trump)
             ) {
+                $isCurrentHighest = true;
                 $winningTeamNum = $player->teamNum - 1;
                 $playerWithHighestCard['player'] = $player;
                 $playerWithHighestCard['card'] = $playedCards[$i];
             }
 
+            $cardsPlayedDisplay = $this->getCardsPlayedString($cardsPlayedDisplay, $player->name, $playedCards[$i]->name, $isCurrentHighest);
             $this->clearScreen();
         }
 
-        echo $cardsPlayedDisplay . "\n" ; // Remove the last -> on this.
+        echo $cardsPlayedDisplay . "\n";
         echo $playerWithHighestCard['player']->name . " won the point and will start the next one!\n";
 
         $this->teams[$winningTeamNum]['trickPoints'] += 1;
@@ -382,6 +383,37 @@ class Euchre
         foreach ($player->hand as $card) if ($card->getSuit($this->trump) == $suitToFollow) return true;
 
         return false;
+    }
+
+    /**
+     * Updates the cards played display string for a trick.
+     * 
+     * @return string
+     */
+    private function getCardsPlayedString(string $cardsPlayedDisplay, string $playerName, string $cardName, bool $isCurrentHighest): string 
+    {
+        $red = "\033[31m";
+        $green = "\033[32m";
+        $newSegment = ($cardsPlayedDisplay ? ' -> ' : '') . ($isCurrentHighest ? $green : $red) . "($playerName) $cardName\033[0m";
+
+        if (!$cardsPlayedDisplay) return $newSegment ;
+        $cardsPlayedDisplay .= $newSegment;
+
+        if ($cardsPlayedDisplay && $isCurrentHighest) {
+            $segments = explode(' -> ', $cardsPlayedDisplay);
+            $cardsPlayedDisplay = '';
+            foreach ($segments as $key => $segment) {
+                if ($key === array_key_last($segments)) {
+                    $cardsPlayedDisplay .= ' -> ' . $segment;
+                    continue;
+                } 
+
+                $updatedSegment = ($key != array_key_first($segments) ? ' -> ' : '') . str_replace($green, $red, $segment);
+                $cardsPlayedDisplay .= $updatedSegment;
+            }
+        }
+
+        return $cardsPlayedDisplay;
     }
     #endregion
 }
