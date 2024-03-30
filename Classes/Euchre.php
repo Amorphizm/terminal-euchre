@@ -74,11 +74,19 @@ class Euchre
     {
         // Left of the dealer starts. Then use player position that is passed in since they had the highest card on the previous point.
         $playerToStartPos = $this->dealer->nextPlayerPosition;
-        for ($i = 0; $i < 5; $i++)  {
-            $playerToStartPos = $this->playTrickPoint($playerToStartPos);
-        }
+        for ($i = 0; $i < 5; $i++) $playerToStartPos = $this->playTrickPoint($playerToStartPos);
 
         // Verify trick points after playing one out. Then decide how to actually apply that to the overall match points.
+        $trickWinners = $this->teams[0]['trickPoints'] > $this->teams[1]['trickPoints'] ? 0 : 1;
+        $wentAlone = ($this->teams[$trickWinners]['players'][0]->isSittingOut || $this->teams[$trickWinners]['players'][1]->isSittingOut);
+        $gotAllFiveTricks = $this->teams[$trickWinners]['trickPoints'] == 5;
+
+        // 2 points if this team got all five tricks or euchered the other team.
+        $this->teams[$trickWinners]['points'] += ($gotAllFiveTricks || !$this->teams[$trickWinners]['calledTrump']) ? 2 : 1; 
+        
+        // 2 points to 4 if all they got all five tricks and went alone.
+        if ($wentAlone & $gotAllFiveTricks) $this->teams[$trickWinners]['points'] += 2;
+
         echo json_encode($this->teams);
     }
 
@@ -100,7 +108,7 @@ class Euchre
             if ($player->isSittingOut) continue;
 
             // Display the cards that have been played.
-            echo "\033[34mTrump for this trick is $this->trump" . "s!\033[0m\n";
+            echo "\033[34mTrump for this trick is $this->trump" . "s.\033[0m\n";
             if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n";
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
@@ -128,8 +136,6 @@ class Euchre
         }
 
         echo $cardsPlayedDisplay . "\n";
-        echo $playerWithHighestCard['player']->name . " won the point and will start the next one!\n";
-
         $this->teams[$winningTeamNum]['trickPoints'] += 1;
         return $playerWithHighestCard['player']->position;
     }
