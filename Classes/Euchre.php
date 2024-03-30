@@ -10,6 +10,7 @@ class Euchre
     public array $teams = [];
     public bool $stickTheDealer;
     public ?Player $dealer = null;
+    public array $winningTeam = [];
     public string|null $trump = null;
     public array $sittingOutPosition = []; // position of a player who is sitting out in a given trick. 
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
@@ -27,6 +28,8 @@ class Euchre
         while (true) if ($this->isGameOver()) break;
 
         // Game over
+        $this->clearScreen();
+        echo json_encode($this->winningTeam);
         // Display message, fun stats about the game?
         // Play again?
     }
@@ -60,17 +63,10 @@ class Euchre
         }
 
         $this->clearScreen();
-        $this->playTrick();
-        // $this->playTrick() ? 
-        // if we have a trump then the trick begins, loop over players for turns.
-        // Note that if a players isSittingOut value is true then skip them. That means their partner is going alone.
-        // trick over, apply points to winning team for this trick.
-        // game won check, break if so.
-
-        return true; // for testing!
+        return $this->playTrick(); 
     }
 
-    private function playTrick(): void
+    private function playTrick(): bool
     {
         // Left of the dealer starts. Then use player position that is passed in since they had the highest card on the previous point.
         $playerToStartPos = $this->dealer->nextPlayerPosition;
@@ -87,7 +83,12 @@ class Euchre
         // 2 points to 4 if all they got all five tricks and went alone.
         if ($wentAlone & $gotAllFiveTricks) $this->teams[$trickWinners]['points'] += 2;
 
-        echo json_encode($this->teams);
+        if ($this->teams[$trickWinners]['points'] >= $this->pointsToWin) {
+            $this->winningTeam = $this->teams[$trickWinners];
+            return true;
+        }
+
+        return false;
     }
 
     private function playTrickPoint(array $positionToStart): array
@@ -142,14 +143,15 @@ class Euchre
      */
     private function setValuesForNextTrick(): void
     {
+        echo "Resetting values for next trick!\n";
         $this->trump = null;
 
         if ($this->sittingOutPosition) {
-            ($this->getPlayerAtPosition($this->sittingOutPosition))->isSittingOut = false;
+            $this->getPlayerAtPosition($this->sittingOutPosition)->isSittingOut = false;
             $this->sittingOutPosition = [];
         }
 
-        foreach ($this->teams as $team) {
+        foreach ($this->teams as &$team) {
             $team['calledTrump'] = false;
             $team['trickPoints'] = 0;
         }
@@ -213,6 +215,7 @@ class Euchre
 
         echo "$partner->name is sitting out this trick!\n";
         sleep(3);
+        $this->sittingOutPosition = $partner->position;
         $partner->isSittingOut = true;
     }
 
