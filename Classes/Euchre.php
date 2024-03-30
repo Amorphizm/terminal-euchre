@@ -29,9 +29,7 @@ class Euchre
 
         // Game over
         $this->clearScreen();
-        echo json_encode($this->winningTeam);
-        // Display message, fun stats about the game?
-        // Play again?
+        echo "Game Over! {$this->winningTeam['players'][0]->name} & {$this->winningTeam['players'][1]->name} win.";
     }
 
     #region game logic
