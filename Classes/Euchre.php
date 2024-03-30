@@ -100,7 +100,7 @@ class Euchre
             if ($player->isSittingOut) continue;
 
             // Display the cards that have been played.
-            echo "Trump for this trick is $this->trump" . "s!\n";
+            echo "\033[34mTrump for this trick is $this->trump" . "s!\033[0m\n";
             if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n";
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
