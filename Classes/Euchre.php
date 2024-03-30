@@ -93,7 +93,6 @@ class Euchre
     private function playTrickPoint(array $positionToStart): array
     {
         $player = null;
-        $playedCards = [];
         $winningTeamNum = 0;
         $suitToFollow = null;
         $cardsPlayedDisplay = '';
@@ -114,26 +113,20 @@ class Euchre
             if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n";
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
-            $playedCards[] = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
-            if (!$suitToFollow) {
-                if ($playedCards[$i]->type == 'Jack' && $playedCards[$i]->leftBower == $this->trump) {
-                    $suitToFollow = $this->trump;   
-                } else {
-                    $suitToFollow = $playedCards[$i]->suit;
-                }
-            }
+            $playedCard = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
+            if (!$suitToFollow) $suitToFollow = $playedCard->type == 'Jack' && $playedCard->leftBower == $this->trump ? $suitToFollow = $this->trump : $playedCard->suit;
 
             if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
                 $i == 0 || 
-                $playerWithHighestCard['card']?->getValue($suitToFollow, $this->trump) < $playedCards[$i]->getValue($suitToFollow, $this->trump)
+                $playerWithHighestCard['card']?->getValue($suitToFollow, $this->trump) < $playedCard->getValue($suitToFollow, $this->trump)
             ) {
                 $isCurrentHighest = true;
                 $winningTeamNum = $player->teamNum - 1;
                 $playerWithHighestCard['player'] = $player;
-                $playerWithHighestCard['card'] = $playedCards[$i];
+                $playerWithHighestCard['card'] = $playedCard;
             }
 
-            $cardsPlayedDisplay = $this->getCardsPlayedString($cardsPlayedDisplay, $player->name, $playedCards[$i]->name, $isCurrentHighest);
+            $cardsPlayedDisplay = $this->getCardsPlayedString($cardsPlayedDisplay, $player->name, $playedCard->name, $isCurrentHighest);
             $this->clearScreen();
         }
 
