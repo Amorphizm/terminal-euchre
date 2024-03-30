@@ -78,10 +78,10 @@ class Euchre
         $gotAllFiveTricks = $this->teams[$trickWinners]['trickPoints'] == 5;
 
         // 2 points if this team got all five tricks or euchered the other team.
-        $this->teams[$trickWinners]['points'] += ($gotAllFiveTricks || !$this->teams[$trickWinners]['calledTrump']) ? 2 : 1; 
+        $this->teams[$trickWinners]['points'] += $gotAllFiveTricks || !$this->teams[$trickWinners]['calledTrump'] ? 2 : 1; 
 
         // 2 points to 4 if all they got all five tricks and went alone.
-        if ($wentAlone & $gotAllFiveTricks) $this->teams[$trickWinners]['points'] += 2;
+        if ($wentAlone && $gotAllFiveTricks) $this->teams[$trickWinners]['points'] += 2;
 
         if ($this->teams[$trickWinners]['points'] >= $this->pointsToWin) {
             $this->winningTeam = $this->teams[$trickWinners];
@@ -108,9 +108,9 @@ class Euchre
             if ($player->isSittingOut) continue;
 
             // Display the cards that have been played and other useful information for the trick.
-            $team1TrickPointsDisplay = "{$this->teams[0]['players'][0]->name} & {$this->teams[0]['players'][1]->name} - {$this->teams[0]['trickPoints']}";
-            $team2TrickPointsDisplay = "{$this->teams[1]['players'][0]->name} & {$this->teams[1]['players'][1]->name} - {$this->teams[1]['trickPoints']}";
-            echo "\033[34mTrump: $this->trump" . "s | Trick Points: $team1TrickPointsDisplay, $team2TrickPointsDisplay\033[0m\n";
+            $team1TrickPointsDisplay = "{$this->teams[0]['players'][0]->name} & {$this->teams[0]['players'][1]->name} - Trick {$this->teams[0]['trickPoints']}, Match {$this->teams[0]['points']}";
+            $team2TrickPointsDisplay = "{$this->teams[1]['players'][0]->name} & {$this->teams[1]['players'][1]->name} - Trick {$this->teams[1]['trickPoints']}, Match {$this->teams[1]['points']}";
+            echo "\033[34mTrump: $this->trump" . "s | $team1TrickPointsDisplay | $team2TrickPointsDisplay\033[0m\n";
             if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n";
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
@@ -143,7 +143,6 @@ class Euchre
      */
     private function setValuesForNextTrick(): void
     {
-        echo "Resetting values for next trick!\n";
         $this->trump = null;
 
         if ($this->sittingOutPosition) {
