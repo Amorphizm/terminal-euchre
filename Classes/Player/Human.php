@@ -26,6 +26,7 @@ class Human extends Player
                 if (!$suitToFollow || $isFollowingSuit || !$canFollowSuit) {
                     echo "$this->name played the $card->name\n";
                     unset($this->hand[((int) $input) - 1]);
+                    $this->hand = array_values($this->hand); // Rebase keys after unset. This doesn't change the ordering as well :)
                     return $card;
                 }
             }
@@ -121,7 +122,7 @@ class Human extends Player
     {
         $cards = '';
         foreach ($this->hand as $key => $card) {
-            $divider = $key == 4 ? '' : ' | ';
+            $divider = $key == array_key_last($this->hand) ? '' : ' | ';
             $cards .= ($key + 1) . '. ' . $card->name . $divider;
         }
 
