@@ -40,22 +40,22 @@ class RuleBasedBot extends Player
 
     public function selectTrump(bool $stickTheDealer): ?string
     {
-
+        // Return the suit that we have most of?
     }
 
     public function processAloneCheck(): bool
     {
-        
+        // Do we have 5 trump in hand?
     }
 
     public function processOrderUp(Card $card): void
     {
-        
+        // Replace lowest card in hand.
     }
 
     public function orderUpCardCheck(Card $card, string $dealerName): bool
     {
-        
+        // Do we have 3 or more of the flipped card suit in hand?
     }
 }
 
