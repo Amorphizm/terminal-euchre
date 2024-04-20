@@ -19,7 +19,7 @@ class Card
         $this->name = "$type of $this->suit" . 's';
     }
     
-    public function getValue(string $playedSuit, string $trump): int
+    public function getValue(?string $suitToFollow, string $trump): int
     {
         // Left bower check.
         if ($this->type == 'Jack' && $this->leftBower == $trump) return 12;
@@ -27,8 +27,8 @@ class Card
         // Trump check.
         if ($this->suit == $trump) return $this->trumpLevel;
 
-        // Played suit check.
-        if ($this->suit == $playedSuit) return $this->level;
+        // Played suit check or get base card value if suitToFollow is null.
+        if (!isset($suitToFollow) || $this->suit == $suitToFollow) return $this->level;
 
         return 0; // No suit, no trump, no points :(
     }
