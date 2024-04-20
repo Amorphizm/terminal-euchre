@@ -2,6 +2,7 @@
 
 require_once(__DIR__ . '/Deck.php');
 require_once(__DIR__ . '/Player/Human.php');
+require_once(__DIR__ . '/Player/RuleBasedBot.php');
 
 class Euchre
 {
@@ -92,6 +93,7 @@ class Euchre
     private function playTrickPoint(array $positionToStart): array
     {
         $player = null;
+        $playedCards = [];
         $winningTeamNum = 0;
         $suitToFollow = null;
         $cardsPlayedDisplay = '';
@@ -112,7 +114,8 @@ class Euchre
             if ($cardsPlayedDisplay) echo $cardsPlayedDisplay . "\n";
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
-            $playedCard = $player->playCard($suitToFollow, $canFollowSuit, $this->trump);
+            $playedCard = $player->playCard($suitToFollow, $canFollowSuit, $this->trump, $playedCards);
+            $playedCards[] = $playedCard;
             if (!$suitToFollow) $suitToFollow = $playedCard->type == 'Jack' && $playedCard->leftBower == $this->trump ? $suitToFollow = $this->trump : $playedCard->suit;
 
             if ( // First card to be played or is better than the previous card then set their team num as the current winning team.
@@ -323,11 +326,8 @@ class Euchre
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        array_push($team['players'], new Human( // Humans for now, implement Bots later though. 1st player is a human, remaining 3 should be bots.
-                            $input, 
-                            $teamNum,
-                            [$teamNum - 1, $i],
-                        ));
+                        $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum - 1, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum - 1, $i]);
+                        array_push($team['players'], $player);
                         $validInput = true;
                     }
                 }
