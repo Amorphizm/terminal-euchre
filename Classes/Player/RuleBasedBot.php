@@ -44,8 +44,7 @@ class RuleBasedBot extends Player
         }
         
         echo $this->name . " played the $cardToPlay->name.\n";
-        // echo json_encode($this->hand) . "\n";
-        sleep(4);
+        sleep(5);
 
         return $cardToPlay;
     } 
@@ -110,26 +109,18 @@ class RuleBasedBot extends Player
             // If our partner does not have the trick point then lets find the best card we can play. We can't follow suit so we need to play a trump card.
             if (!$partnerHasTrickPoint && count($this->trumpCards)) {
                 // Find the lowest possible trump card we have that beats the highest card played. $selectedCard will remain null if we can't find one.
-                echo "Can't follow suit, partner doesn't have it, and has trump cards. Find card that wins\n";
                 $selectedCard = $this->findCardByValueToBeat($this->trumpCards, $highestCardPlayedValue, $trump, $suitToFollow);
             }   
             
             // No trump cards OR partner has trick point OR we can't beat the best card played with any of our trump cards, lets play the lowest trash card.
-            if (!$selectedCard) {
-                echo "Can't follow suit and its all bad, play worst card\n";
-                $selectedCard = $this->findCardByValue($this->trashCards, $trump)['card'];
-            }
+            if (!$selectedCard) $selectedCard = $this->findCardByValue($this->trashCards, $trump)['card'];
         } else if (count($this->suitCards) == 1) { // Only one suit card so play it.
-            echo "Only one suit card, play it\n";
             $selectedCard = $this->suitCards[0];
         } else if ($partnerHasTrickPoint) { // Partner is winning so play the lowest suit card we have.
-            echo "Can follow suit and partner has trick point, play worst card\n";
             $selectedCard = $this->findCardByValue($this->suitCards, $trump, $suitToFollow)['card'];
         } else if ($winningCard = $this->findCardByValueToBeat($this->suitCards, $highestCardPlayedValue, $trump, $suitToFollow)) { // Play winning suit card to play.
-            echo "Can follow suit and partner does not have trick point. Play winning card\n";
             $selectedCard = $winningCard;
         } else { // Throw away our worst suit card.
-            echo "Can follow suit and can't find a better card and partner does not have trick point. Play trash card??\n";
             $selectedCard = $this->findCardByValue($this->suitCards, $trump. $suitToFollow)['card'];  
         }
 
