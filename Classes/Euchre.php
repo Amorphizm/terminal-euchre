@@ -77,7 +77,7 @@ class Euchre
         $gotAllFiveTricks = $this->teams[$trickWinners]['trickPoints'] == 5;
 
         // 2 points if this team got all five tricks or euchered the other team.
-        $this->teams[$trickWinners]['points'] += $gotAllFiveTricks || !$this->teams[$trickWinners]['calledTrump'] ? 2 : 1; 
+        $this->teams[$trickWinners]['points'] += ($gotAllFiveTricks || !$this->teams[$trickWinners]['calledTrump']) ? 2 : 1;
 
         // 2 points to 4 if all they got all five tricks and went alone.
         if ($wentAlone && $gotAllFiveTricks) $this->teams[$trickWinners]['points'] += 2;
