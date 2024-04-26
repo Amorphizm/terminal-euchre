@@ -17,7 +17,7 @@ abstract class Player
         $this->teamNum = $teamNum;
         $this->position = $position;
         $this->nextPlayerPosition = $this->getNextPlayerPosition($position);
-        $this->partnerPosition = [$teamNum - 1, $this->position[1] ? 0 : 1];
+        $this->partnerPosition = [$teamNum, $this->position[1] ? 0 : 1];
     }
 
     /**

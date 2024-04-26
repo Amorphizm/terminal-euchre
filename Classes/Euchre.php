@@ -124,7 +124,7 @@ class Euchre
                 $playerWithHighestCard['card']?->getValue($suitToFollow, $this->trump) < $playedCard->getValue($suitToFollow, $this->trump)
             ) {
                 $isCurrentHighest = true;
-                $winningTeamNum = $player->teamNum - 1;
+                $winningTeamNum = $player->teamNum;
                 $playerWithHighestCard['player'] = $player;
                 $playerWithHighestCard['card'] = $playedCard;
             }
@@ -179,7 +179,7 @@ class Euchre
                 $this->clearScreen();
                 echo "$player->name has ordered up the $flippedCard->name.\n";
                 $this->playerNameWhoCalledTrump = $player->name;
-                $this->teams[$player->teamNum - 1]['calledTrump'] = true;
+                $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->aloneCheck($player);
                 $this->dealer->processOrderUp($flippedCard);
                 return $flippedCard->suit;
@@ -195,7 +195,7 @@ class Euchre
             
             $suit = $player->selectTrump($this->stickTheDealer);
             if ($suit) {
-                $this->teams[$player->teamNum - 1]['calledTrump'] = true;
+                $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->playerNameWhoCalledTrump = $player->name;
                 $this->aloneCheck($player);
                 return $suit;
@@ -308,7 +308,7 @@ class Euchre
     private function createTeams(): void
     {
         $maxCharsForName = 15;
-        while (($teamNum = count($this->teams) + 1) <= 2) {
+        while (($teamNum = count($this->teams)) < 2) {
             $this->clearScreen();
             $team = [ // Should this be its own class?
                 'points' => 0,
@@ -316,7 +316,8 @@ class Euchre
                 'calledTrump' => false,
                 'trickPoints' => 0,
             ];
-            echo "Setup for team $teamNum.\n";
+
+            echo "Setup for team " . $teamNum + 1 . "\n";
 
             // Two players per team.
             for ($i = 0; $i < 2; $i++) {
@@ -324,12 +325,12 @@ class Euchre
                 $firstOrSecond = $i == 0 ? 'first' : 'second';
 
                 while (!$validInput) {
-                    $input = readLine("Enter a username for team $teamNum's $firstOrSecond player: ");
+                    $input = readLine("Enter a username for team " . $teamNum + 1 . "'s $firstOrSecond player: ");
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        // $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum - 1, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum - 1, $i]);
-                        $player = new RuleBasedBot($input, $teamNum, [$teamNum - 1, $i]);
+                        // $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
+                        $player = new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
                         array_push($team['players'], $player);
                         $validInput = true;
                     }
