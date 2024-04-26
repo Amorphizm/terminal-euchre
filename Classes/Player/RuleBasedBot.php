@@ -26,10 +26,9 @@ class RuleBasedBot extends Player
             if (count($playedCards) >= 2) $this->partnerCard = count($playedCards) == 2 ? $playedCards[0] : $playedCards[1];
 
             // Filter hand for certain card types.
-            $handCopy = $this->hand;
-            $this->trumpCards = array_values(array_filter($handCopy, fn($card) => $card->getSuit($trump) === $trump));
-            $this->suitCards = array_values(array_filter($handCopy, fn($card) => $card->getSuit($trump) === $suitToFollow));
-            $this->trashCards = array_values(array_filter($handCopy, fn($card) => $card->getSuit($trump) !== $trump && $card->suit !== $suitToFollow));
+            $this->trumpCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) === $trump));
+            $this->suitCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) === $suitToFollow));
+            $this->trashCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) !== $trump && $card->suit !== $suitToFollow));
 
             $cardToPlay = (!$playedCards) ? $this->determineLeadCard($trump) : $this->determineNonLeadCard($suitToFollow, $canFollowSuit, $trump, $playedCards);
 
@@ -112,8 +111,8 @@ class RuleBasedBot extends Player
                 $selectedCard = $this->findCardByValueToBeat($this->trumpCards, $highestCardPlayedValue, $trump, $suitToFollow);
             }   
             
-            // No trump cards OR partner has trick point OR we can't beat the best card played with any of our trump cards, lets play the lowest trash card.
-            if (!$selectedCard) $selectedCard = $this->findCardByValue($this->trashCards, $trump)['card'];
+            // No winning trump cards OR partner has trick point OR we can't beat the best card played with any of our trump cards, lets play the lowest trash card.
+            if (!$selectedCard) $selectedCard = $this->findCardByValue(array_merge($this->trashCards, $this->trumpCards), $trump)['card'];
         } else if (count($this->suitCards) == 1) { // Only one suit card so play it.
             $selectedCard = $this->suitCards[0];
         } else if ($partnerHasTrickPoint) { // Partner is winning so play the lowest suit card we have.
@@ -142,7 +141,7 @@ class RuleBasedBot extends Player
     {
         $bestCard = null;
         foreach ($cards as $card) {
-            if ($bestCard === null || $this->compareCardRank($card, $bestCard, $trump, $suitToFollow, $lookForHighestValue)) {
+            if (!$bestCard || $this->compareCardRank($card, $bestCard, $trump, $suitToFollow, $lookForHighestValue)) {
                 $bestCard = $card;
             }
         }
