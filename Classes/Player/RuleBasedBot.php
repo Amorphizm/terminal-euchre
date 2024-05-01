@@ -111,7 +111,7 @@ class RuleBasedBot extends Player
                 $selectedCard = $this->findCardByValueToBeat($this->trumpCards, $highestCardPlayedValue, $trump, $suitToFollow);
             }   
             
-            // No winning trump cards OR partner has trick point OR we can't beat the best card played with any of our trump cards, lets play the lowest trash card.
+            // No winning trump cards OR partner has trick point OR we can't beat the best card played with any of our trump cards, lets play the lowest trash OR trump card.
             if (!$selectedCard) $selectedCard = $this->findCardByValue(array_merge($this->trashCards, $this->trumpCards), $trump)['card'];
         } else if (count($this->suitCards) == 1) { // Only one suit card so play it.
             $selectedCard = $this->suitCards[0];
