@@ -152,10 +152,11 @@ class Euchre
             $this->sittingOutPosition = [];
         }
 
-        $this->teams[0]['calledTrump'] = false;
-        $this->teams[1]['calledTrump'] = false;
-        $this->teams[0]['trickPoints'] = 0;
-        $this->teams[1]['trickPoints'] = 0;
+        for ($i = 0; $i <= 1; $i++) {
+            $this->teams[$i]['trickPoints'] = 0;
+            $this->teams[$i]['calledTrump'] = false;
+            foreach ($this->teams[$i]['players'] as $player) $player->isSittingOut = $player->calledTrump = false;
+        }
 
         $this->setDealer();
     }
@@ -178,8 +179,9 @@ class Euchre
             if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
                 $this->clearScreen();
                 echo "$player->name has ordered up the $flippedCard->name.\n";
-                $this->playerNameWhoCalledTrump = $player->name;
                 $this->teams[$player->teamNum]['calledTrump'] = true;
+                $this->playerNameWhoCalledTrump = $player->name;
+                $player->calledTrump = true;
                 $this->aloneCheck($player);
                 $this->dealer->processOrderUp($flippedCard);
                 return $flippedCard->suit;
@@ -197,6 +199,7 @@ class Euchre
             if ($suit) {
                 $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->playerNameWhoCalledTrump = $player->name;
+                $player->calledTrump = true;
                 $this->aloneCheck($player);
                 return $suit;
             }

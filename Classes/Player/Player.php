@@ -7,6 +7,7 @@ abstract class Player
     public array $hand = [];
     public array $position = []; // team num, player num.
     public bool $isDealer = false;
+    public bool $calledTrump = false;
     public bool $isSittingOut = false; // Set to true if their partner is going alone.
     public array $partnerPosition = [];
     public array $nextPlayerPosition = []; // Pointer to next player in a given iteration (dealing cards, tricks).
