@@ -14,7 +14,7 @@ class RuleBasedBot extends Player
       parent::__construct($name, $teamNum, $position);
     }
 
-    public function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump, array $playedCards = []): Card
+    public function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump, array $playedCards = [], bool $partnerCalledTrump = false): Card
     {
         $cardToPlay = null;
 
@@ -30,7 +30,7 @@ class RuleBasedBot extends Player
             $this->suitCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) === $suitToFollow));
             $this->trashCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) !== $trump && $card->suit !== $suitToFollow));
 
-            $cardToPlay = (!$playedCards) ? $this->determineLeadCard($trump) : $this->determineNonLeadCard($suitToFollow, $canFollowSuit, $trump, $playedCards);
+            $cardToPlay = (!$playedCards) ? $this->determineLeadCard($trump, $partnerCalledTrump) : $this->determineNonLeadCard($suitToFollow, $canFollowSuit, $trump, $playedCards);
 
             // Remove the card we want to play from the hand and recontruct it.
             foreach ($this->hand as $key => $card) {
@@ -77,12 +77,39 @@ class RuleBasedBot extends Player
         return true; // test value.
     }
 
-    private function determineLeadCard(string $trump): Card 
+    private function determineLeadCard(string $trump, bool $partnerCalledTrump): Card 
     {
-        // Off hand ace lead.
-        foreach ($this->trashCards as $card) if ($card->type == 'Ace' && $card->suit != $trump) return $card;
+        $selectedCard = $offHandAce = $right = $left = null;
 
-        return $this->hand[0]; // Test value.
+        // Figure out how much of each suit we have in our hand first.
+        $suitCounts = [];
+        foreach ($this->hand as $card) {
+            if (!array_key_exists($card->suit, $suitCounts)) {
+                $suitCounts[$card->suit] = 1;
+            } else {
+                $suitCounts[$card->suit] += 1;
+            }
+        }
+
+        // Queue up an off hand ace, right, and left lead.
+        foreach ($this->hand as $card) {
+            if ($card->getValue(null, $trump) == 12) $left = $card;
+            if ($card->getValue(null, $trump) == 13) $right = $card;
+            if ($card->type == 'Ace' && $card->suit !== $trump && ($suitCounts[$card->suit] - 1) <= 2) $offHandAce = $card;
+        }
+
+        // Find the lowest trump card we have.
+        $lowestTumpCard = $this->findCardByValue($this->trumpCards, $trump)['card'];
+
+        // Right or left or lowest trump card.
+        $selectedCard = isset($right) ? $right : (isset($left) ? $left : $lowestTumpCard);
+        if ($selectedCard) return $selectedCard;
+
+        // No trump cards. Off hand ace?
+        if ($offHandAce) return $offHandAce;
+
+        // Just return the lowest card we have in our hand.
+        return $this->findCardByValue($this->hand, $trump)['card'];
     }
 
     /**
@@ -146,7 +173,7 @@ class RuleBasedBot extends Player
             }
         }
 
-        return ['card' => $bestCard, 'value' => $bestCard->getValue($suitToFollow, $trump)];
+        return ['card' => $bestCard, 'value' => $bestCard ? $bestCard->getValue($suitToFollow, $trump) : 0];
     }
 
     /**
