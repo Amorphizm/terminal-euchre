@@ -108,7 +108,7 @@ class RuleBasedBot extends Player
         // No trump cards. Off hand ace?
         if ($offHandAce) return $offHandAce;
 
-        $lookForHighestValue = !($partnerCalledTrump && count($this->hand) >= 3);
+        $lookForHighestValue = !($partnerCalledTrump && count($this->hand) >= 4);
         return $this->findCardByValue($this->hand, $trump, lookForHighestValue: $lookForHighestValue)['card'];
     }
 
