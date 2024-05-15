@@ -116,7 +116,8 @@ class Euchre
 
             $canFollowSuit = $this->canFollowSuit($player, $suitToFollow);
             $partnerCalledTrump = $this->getPlayerAtPosition($player->partnerPosition)->calledTrump;
-            $playedCard = $player->playCard($suitToFollow, $canFollowSuit, $this->trump, $playedCards, $partnerCalledTrump);
+            $partnerIsSittingOut = $this->getPlayerAtPosition($player->partnerPosition)->isSittingOut;
+            $playedCard = $player->playCard($suitToFollow, $canFollowSuit, $this->trump, $playedCards, $partnerCalledTrump, $partnerIsSittingOut);
             $playedCards[] = $playedCard;
             
             if (!$suitToFollow) $suitToFollow = $playedCard->type == 'Jack' && $playedCard->leftBower == $this->trump ? $suitToFollow = $this->trump : $playedCard->suit;

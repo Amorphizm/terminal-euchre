@@ -14,7 +14,7 @@ class RuleBasedBot extends Player
       parent::__construct($name, $teamNum, $position);
     }
 
-    public function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump, array $playedCards = [], bool $partnerCalledTrump = false): Card
+    public function playCard(?string $suitToFollow, bool $canFollowSuit, string $trump, array $playedCards = [], bool $partnerCalledTrump = false, bool $goingAlone = false): Card
     {
         $cardToPlay = null;
 
@@ -23,7 +23,7 @@ class RuleBasedBot extends Player
 
         if (!$cardToPlay) {
             // Find our partner's card.
-            if (count($playedCards) >= 2) $this->partnerCard = count($playedCards) == 2 ? $playedCards[0] : $playedCards[1];
+            if (count($playedCards) >= 2 && !$goingAlone) $this->partnerCard = count($playedCards) == 2 ? $playedCards[0] : $playedCards[1];
 
             // Filter hand for certain card types.
             $this->trumpCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) === $trump));
