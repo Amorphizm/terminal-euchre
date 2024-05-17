@@ -180,6 +180,7 @@ class Euchre
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
             if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
+                sleep(2);
                 $this->clearScreen();
                 echo "$player->name has ordered up the $flippedCard->name.\n";
                 $this->teams[$player->teamNum]['calledTrump'] = true;

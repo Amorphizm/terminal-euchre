@@ -69,12 +69,46 @@ class RuleBasedBot extends Player
         $this->hand[0] = $card; // Test value.
     }
 
+    /**
+     * Check if the player wants to order up the card to the dealer to declare trump.
+     *
+     * @param Card $card The card that has been flipped.
+     * @param string $dealerName The name of the dealer.
+     * @return bool Returns true if the player wants to order up the card, false otherwise.
+     */
     public function orderUpCardCheck(Card $card, string $dealerName): bool
     {
-        // Do we have 3 or more of the flipped card suit in hand?
+        $suitCount = 0;
+        $offSuitAceCount = 0;
+        $bowerInHand = false;
+
+        foreach ($this->hand as $cardInHand) {
+            if ($cardInHand->suit == $card->suit) {
+                $suitCount += 1;
+                if ($card->getValue(null, $card->suit) >= 12) {
+                    $bowerInHand = true;
+                }
+            } else if ($card->type == 'Ace') {
+                $offSuitAceCount += 1;
+            }
+        }
+
+        // Check if our hand meets the conditions to order up the card.
+            // 3 suit matches on flipped card with one being the bower.
+            // 3 suit matches on the flipped card with one being an off suit ace.
+            // 2 suit matches on the flipped card with 2 off suit aces.
+        if (
+            ($suitCount >= 3 && ($offSuitAceCount >= 1 || $bowerInHand)) ||
+            ($suitCount >= 2 && $offSuitAceCount >= 2)
+        ) {
+            $message = $this->isDealer ? " is picking " : " has ordered $dealerName to pick ";
+            echo $this->name . $message . "up the $card->name!\n";
+            return true;
+        }
         
-        echo $this->name . " has ordered up the $card->name!\n";
-        return true; // test value.
+        echo $this->name . " passes on the flipped $card->name.\n";
+        sleep(2);
+        return false;
     }
 
     private function determineLeadCard(string $trump, bool $partnerCalledTrump): Card 
@@ -160,8 +194,6 @@ class RuleBasedBot extends Player
      * @param string $trump The trump suit
      * @param string $suitToFollow The suit that needs to be followed if possible
      * @param bool $lookForHighestValue Whether to return the card with the highest or lowest rank
-     * @param bool $ignoreSuitPlayed Whether to ignore the suit that has been played
-     *
      * @return Card The best card or null if there are no cards from the specified suit
      */
     private function findCardByValue(array $cards, string $trump, ?string $suitToFollow = null, bool $lookForHighestValue = false): array 
@@ -181,9 +213,9 @@ class RuleBasedBot extends Player
      *
      * @param Card[] $cards List of cards
      * @param int $valueToBeat The value that the card should beat
-     * @param ?string $suitToFollow The suit that needs to be followed if possible
      * @param string $trump The trump suit
-     *
+     * @param ?string $suitToFollow The suit that needs to be followed if possible 
+     * @param bool $lookForHighestValue Whether to return the card with the highest or lowest rank
      * @return Card|null The best card or null if there are no cards that beat the specified value
      */
     private function findCardByValueToBeat(array $cards, int $valueToBeat, string $trump, ?string $suitToFollow = null, bool $lookForHighestValue = false): ?Card
@@ -206,8 +238,6 @@ class RuleBasedBot extends Player
      * @param string $trump The trump suit
      * @param ?string $suitToFollow The suit that needs to be followed if possible
      * @param bool $lookForHighestValue Whether to return the card with the highest or lowest rank
-     * @param bool $ignoreSuitPlayed Whether to ignore the suit that has been played
-     *
      * @return bool Returns true if $a is better than $b, false otherwise
      */
     private function compareCardRank(Card $a, Card $b, string $trump, ?string $suitToFollow, bool $lookForHighestValue): bool 
