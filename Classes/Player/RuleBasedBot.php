@@ -31,19 +31,11 @@ class RuleBasedBot extends Player
             $this->trashCards = array_values(array_filter($this->hand, fn($card) => $card->getSuit($trump) !== $trump && $card->suit !== $suitToFollow));
 
             $cardToPlay = (!$playedCards) ? $this->determineLeadCard($trump, $partnerCalledTrump) : $this->determineNonLeadCard($suitToFollow, $canFollowSuit, $trump, $playedCards);
-
-            // Remove the card we want to play from the hand and recontruct it.
-            foreach ($this->hand as $key => $card) {
-                if ($card->type === $cardToPlay->type && $card->suit === $cardToPlay->suit) {
-                    unset($this->hand[$key]);
-                    $this->hand = array_values($this->hand);
-                    break;
-                }
-            }
+            $this->removeCardFromHand($cardToPlay);
         }
         
         echo $this->name . " played the $cardToPlay->name.\n";
-        sleep(5);
+        sleep(4);
 
         return $cardToPlay;
     } 
@@ -64,9 +56,12 @@ class RuleBasedBot extends Player
 
     public function processOrderUp(Card $card): void
     {
-        // Replace lowest card in hand.
+        $cardToDiscard = $this->findCardByValue($this->hand, $card->suit)['card'];
+        $this->removeCardFromHand($cardToDiscard);
+        array_push($this->hand, $card);
 
-        $this->hand[0] = $card; // Test value.
+        if (!$this->isDealer) echo $this->name . " picked up the $card->name.\n";
+        sleep(2);
     }
 
     /**
@@ -194,18 +189,18 @@ class RuleBasedBot extends Player
      * @param string $trump The trump suit
      * @param string $suitToFollow The suit that needs to be followed if possible
      * @param bool $lookForHighestValue Whether to return the card with the highest or lowest rank
-     * @return Card The best card or null if there are no cards from the specified suit
+     * @return array The target card or null if there are no cards from the specified suit
      */
     private function findCardByValue(array $cards, string $trump, ?string $suitToFollow = null, bool $lookForHighestValue = false): array 
     {
-        $bestCard = null;
+        $targetCard = null;
         foreach ($cards as $card) {
-            if (!$bestCard || $this->compareCardRank($card, $bestCard, $trump, $suitToFollow, $lookForHighestValue)) {
-                $bestCard = $card;
+            if (!$targetCard || $this->compareCardRank($card, $targetCard, $trump, $suitToFollow, $lookForHighestValue)) {
+                $targetCard = $card;
             }
         }
 
-        return ['card' => $bestCard, 'value' => $bestCard ? $bestCard->getValue($suitToFollow, $trump) : 0];
+        return ['card' => $targetCard, 'value' => $targetCard ? $targetCard->getValue($suitToFollow, $trump) : 0];
     }
 
     /**
@@ -216,18 +211,18 @@ class RuleBasedBot extends Player
      * @param string $trump The trump suit
      * @param ?string $suitToFollow The suit that needs to be followed if possible 
      * @param bool $lookForHighestValue Whether to return the card with the highest or lowest rank
-     * @return Card|null The best card or null if there are no cards that beat the specified value
+     * @return Card|null The target card or null if there are no cards that beat the specified value
      */
     private function findCardByValueToBeat(array $cards, int $valueToBeat, string $trump, ?string $suitToFollow = null, bool $lookForHighestValue = false): ?Card
     {
-        $bestCard = null;
+        $targetCard = null;
         foreach ($cards as $card) {
-            if ($card->getValue($suitToFollow, $trump) > $valueToBeat && (!$bestCard || $this->compareCardRank($bestCard, $card, $trump, $suitToFollow, $lookForHighestValue))) {
-                $bestCard = $card;
+            if ($card->getValue($suitToFollow, $trump) > $valueToBeat && (!$targetCard || $this->compareCardRank($targetCard, $card, $trump, $suitToFollow, $lookForHighestValue))) {
+                $targetCard = $card;
             }
         }
 
-        return $bestCard;
+        return $targetCard;
     }
 
     /**
@@ -246,6 +241,16 @@ class RuleBasedBot extends Player
         $rankB = $b->getValue($suitToFollow, $trump);
 
         return $lookForHighestValue ? $rankA > $rankB : $rankA < $rankB;
+    }
+
+    private function removeCardFromHand(Card $card) {
+        foreach ($this->hand as $key => $cardInHand) {
+            if ($cardInHand->type === $card->type && $cardInHand->suit === $card->suit) {
+                unset($this->hand[$key]);
+                $this->hand = array_values($this->hand);
+                break;
+            }
+        }
     }
 }
 
