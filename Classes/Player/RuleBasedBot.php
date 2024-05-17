@@ -98,8 +98,8 @@ class RuleBasedBot extends Player
             // 3 suit matches on the flipped card with one being an off suit ace.
             // 2 suit matches on the flipped card with 2 off suit aces.
         if (
-            ($suitCount >= 3 && ($offSuitAceCount >= 1 || $bowerInHand)) ||
-            ($suitCount >= 2 && $offSuitAceCount >= 2)
+            ($suitCount >= ($this->isDealer ? 2 : 3) && ($offSuitAceCount >= 1 || $bowerInHand)) ||
+            ($suitCount >= ($this->isDealer ? 1 : 2) && $offSuitAceCount >= 2)
         ) {
             $message = $this->isDealer ? " is picking " : " has ordered $dealerName to pick ";
             echo $this->name . $message . "up the $card->name!\n";
