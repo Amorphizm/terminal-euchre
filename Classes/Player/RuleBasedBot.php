@@ -42,9 +42,18 @@ class RuleBasedBot extends Player
 
     public function selectTrump(bool $stickTheDealer): ?string
     {
-        // Return the suit that we have most of?
+        // Figure out how much of each suit we have in our hand first.
+        $suits = ['diamond' => 0, 'heart' => 0, 'spade' => 0, 'club' => 0];
+        foreach ($suits as $suit => $value) {
+            foreach ($this->hand as $card) {
+                $suits[$suit] += $card->getValue(null, $suit);
+            }
+        }
 
-        return $this->hand[0]->suit; // Test value;
+        $highestSuit = array_search(max($suits), $suits);
+        if ($stickTheDealer && $this->isDealer) return $highestSuit;
+
+        return $suits[$highestSuit] >= 35 ? $highestSuit : null;
     }
 
     public function processAloneCheck(): bool
