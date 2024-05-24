@@ -44,16 +44,19 @@ class RuleBasedBot extends Player
     {
         // Figure out how much of each suit we have in our hand first.
         $suits = ['diamond' => 0, 'heart' => 0, 'spade' => 0, 'club' => 0];
-        foreach ($suits as $suit => $value) {
-            foreach ($this->hand as $card) {
-                $suits[$suit] += $card->getValue(null, $suit);
+        foreach ($this->hand as $card) {
+            if ($card->type == 'Jack') { // Left and right bower values.
+                $suits[$card->suit] += ($card->level + 5);
+                $suits[$card->leftBower] += ($card->level + 4);
+                continue;
             }
+
+            $suits[$card->suit] += $card->level;
         }
 
         $highestSuit = array_search(max($suits), $suits);
-        if ($stickTheDealer && $this->isDealer) return $highestSuit;
-
-        return $suits[$highestSuit] >= 35 ? $highestSuit : null;
+        $stuck = ($stickTheDealer && $this->isDealer);
+        return !$stuck && $suits[$highestSuit] < 10 ? null : $highestSuit;
     }
 
     public function processAloneCheck(): bool
