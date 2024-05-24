@@ -56,7 +56,14 @@ class RuleBasedBot extends Player
 
         $highestSuit = array_search(max($suits), $suits);
         $stuck = ($stickTheDealer && $this->isDealer);
-        return !$stuck && $suits[$highestSuit] < 10 ? null : $highestSuit;
+
+        if (!$stuck && $suits[$highestSuit] < 10) {
+            echo "$this->name passes.\n";
+            return null;
+        } else {
+            echo "$this->name named $highestSuit" . "s as trump!\n";
+            return $highestSuit;
+        }
     }
 
     public function processAloneCheck(): bool

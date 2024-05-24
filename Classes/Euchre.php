@@ -200,6 +200,7 @@ class Euchre
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
             $suit = $player->selectTrump($this->stickTheDealer);
+            sleep(2);
             if ($suit) {
                 $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->playerNameWhoCalledTrump = $player->name;
@@ -236,7 +237,7 @@ class Euchre
     private function dealCards(): void
     {
         // Specify who the dealer is.
-        echo "{$this->dealer->name} from team {$this->dealer->teamNum} is dealing the cards!\n";
+        echo "{$this->dealer->name} from team ". $this->dealer->teamNum + 1 ." is dealing the cards!\n";
 
         // Player iteration for dealing cards. Deal cards to dealer last.
         $player = null;
