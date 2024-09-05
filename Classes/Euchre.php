@@ -13,6 +13,7 @@ class Euchre
     public ?Player $dealer = null;
     public array $winningTeam = [];
     public string|null $trump = null;
+    public Card|null $flippedCard = null;
     public string $playerNameWhoCalledTrump = '';
     public array $sittingOutPosition = []; // position of a player who is sitting out in a given trick. 
     // The first partnership to score 5, 7 or 10 points, as agreed beforehand, wins the game.
@@ -149,6 +150,7 @@ class Euchre
     private function setValuesForNextTrick(): void
     {
         $this->trump = null;
+        $this->flippedCard = null;
 
         if ($this->sittingOutPosition) {
             $this->getPlayerAtPosition($this->sittingOutPosition)->isSittingOut = false;
@@ -171,24 +173,25 @@ class Euchre
      */
     private function determineTrump(): string|null
     {
-        $flippedCard = $this->deck->cards[0];
-        echo "{$this->dealer->name} flipped a $flippedCard->name!\n";
+        $this->flippedCard = $this->deck->cards[0];
+        echo "{$this->dealer->name} flipped a {$this->flippedCard->name}!\n";
 
         // Iterate over players and see who wants to order up the flipped card.
         $player = null;
         for ($i = 0; $i < 4; $i++) {
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
-            if ($player->orderUpCardCheck($flippedCard, $this->dealer->name)) {
+            if ($player->orderUpCardCheck($this->flippedCard, $this->dealer->name)) {
                 sleep(2);
                 $this->clearScreen();
-                echo "$player->name has ordered up the $flippedCard->name.\n";
+                echo "$player->name has ordered up the {$this->flippedCard->name}.\n";
                 $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->playerNameWhoCalledTrump = $player->name;
                 $player->calledTrump = true;
                 $this->aloneCheck($player);
-                $this->dealer->processOrderUp($flippedCard);
-                return $flippedCard->suit;
+                $this->dealer->processOrderUp($this->flippedCard);
+
+                return $this->flippedCard->suit;
             }
         }
 
@@ -199,13 +202,14 @@ class Euchre
         for ($i = 0; $i < 4; $i++) {
             $player = $this->getPlayerAtPosition($player?->nextPlayerPosition ?? $this->dealer->nextPlayerPosition);
             
-            $suit = $player->selectTrump($this->stickTheDealer);
+            $suit = $player->selectTrump($this->stickTheDealer, $this->flippedCard->suit);
             sleep(2);
             if ($suit) {
                 $this->teams[$player->teamNum]['calledTrump'] = true;
                 $this->playerNameWhoCalledTrump = $player->name;
                 $player->calledTrump = true;
                 $this->aloneCheck($player);
+
                 return $suit;
             }
         }
@@ -337,8 +341,8 @@ class Euchre
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        // $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
-                        $player = new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
+                        $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
+                        // $player = new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
                         array_push($team['players'], $player);
                         $validInput = true;
                     }

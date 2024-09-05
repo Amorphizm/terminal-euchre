@@ -35,7 +35,7 @@ class Human extends Player
         }
     }
 
-    public function selectTrump(bool $stickTheDealer): ?string 
+    public function selectTrump(bool $stickTheDealer, string $rejectedSuit): ?string 
     {
         $this->displayHand();
         $message = "Enter the position of the card that has the suit you would like to be trump";
@@ -51,12 +51,15 @@ class Human extends Player
             
             if (is_numeric($input) && array_key_exists(((int) $input) - 1, $this->hand)) {
                 $suit = $this->hand[((int) $input) - 1]->suit;
-                echo "$this->name named $suit" . "s as trump!\n";
 
-                return $suit;
+                if ($suit != $rejectedSuit) {
+                    echo "$this->name named $suit" . "s as trump!\n";
+
+                    return $suit;
+                }
             }
 
-            echo "Whoops! Couldn't find a card at that position. Try again!\n";
+            echo "Whoops! Couldn't find a card at that position OR you tried to use the same suit as the flipped card. Try again!\n";
         }
 
         echo "$this->name passes.\n";

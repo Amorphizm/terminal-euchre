@@ -34,7 +34,7 @@ abstract class Player
      * 
      * @return ?string $suit
      */
-    abstract function selectTrump(bool $stickTheDealer): ?string;
+    abstract function selectTrump(bool $stickTheDealer, string $rejectedSuit): ?string;
 
     /**
      * Used to see if the player who determined trump would like to go alone or not.

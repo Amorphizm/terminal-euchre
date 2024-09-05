@@ -40,10 +40,11 @@ class RuleBasedBot extends Player
         return $cardToPlay;
     } 
 
-    public function selectTrump(bool $stickTheDealer): ?string
+    public function selectTrump(bool $stickTheDealer, string $rejectedSuit): ?string
     {
-        // Figure out how much of each suit we have in our hand first.
-        $suits = ['diamond' => 0, 'heart' => 0, 'spade' => 0, 'club' => 0];
+        // Figure out how much of each suit we have in our hand first. Ignore the flipped card's suit since we can't use that as trump.
+        $suits = array_diff_key(['diamond' => 0, 'heart' => 0, 'spade' => 0, 'club' => 0], [$rejectedSuit => true]);
+
         foreach ($this->hand as $card) {
             if ($card->type == 'Jack') { // Left and right bower values.
                 $suits[$card->suit] += ($card->level + 5);
