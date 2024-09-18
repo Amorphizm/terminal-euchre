@@ -341,8 +341,8 @@ class Euchre
                     if (strlen($input) > $maxCharsForName) {
                         echo "Ooops! Looks like that username it too long (15 chars or less please). Try again!\n";
                     } else {
-                        $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
-                        // $player = new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
+                        // $player = ($teamNum == 1 && $i == 0) ? new Human($input, $teamNum, [$teamNum, $i]) : new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
+                        $player = new RuleBasedBot($input, $teamNum, [$teamNum, $i]);
                         array_push($team['players'], $player);
                         $validInput = true;
                     }
