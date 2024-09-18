@@ -68,15 +68,13 @@ class RuleBasedBot extends Player
         $suits = array_diff_key(['diamond' => 0, 'heart' => 0, 'spade' => 0, 'club' => 0], [$rejectedSuit => true]);
 
         foreach ($this->hand as $card) {
-            if (!array_key_exists($card->suit, $suits)) continue;
-
-            if ($card->type == 'Jack') { // Left and right bower values.
-                $suits[$card->suit] += ($card->level + 5);
-                $suits[$card->leftBower] += ($card->level + 4);
-                continue;
+            if ($card->suit != $rejectedSuit) {
+                $suits[$card->suit] += ($card->type == 'Jack' ? $card->level + 5 : $card->level);
             }
 
-            $suits[$card->suit] += $card->level;
+            if ($card->leftBower && $card->leftBower != $rejectedSuit) {
+                $suits[$card->leftBower] += ($card->level + 4);
+            }
         }
 
         $highestSuit = array_search(max($suits), $suits);
